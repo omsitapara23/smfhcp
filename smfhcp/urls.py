@@ -7,5 +7,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('login/', auth_views.LoginView.as_view(template_name='registrations/login.html'), name='login'),
     path('logout/', views.logout, name='logout'),
+    path('login/signup_email/', views.signup_email, name = 'signup_email'),
     path('oauth/', include('social_django.urls', namespace='social'))
 ]
