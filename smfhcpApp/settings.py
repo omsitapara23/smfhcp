@@ -108,7 +108,7 @@ SOCIAL_AUTH_GOOGLE_PLUS_SCOPE = [
 
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
-LOGIN_REDIRECT_URL = 'smfhcp'
+LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'smfhcp'
 WSGI_APPLICATION = 'smfhcpApp.wsgi.application'
 
