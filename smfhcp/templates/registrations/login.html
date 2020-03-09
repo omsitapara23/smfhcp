@@ -17,7 +17,7 @@ body {
 
     <div class="container" style="padding-top: 100px !important; padding-bottom: 100px !important;">
       <div class="d-flex justify-content-center">
-        <img src="{% static 'images/wallet.svg' %}" width="50" height="50" class="d-inline-block align-top" alt="">
+<!--        <img src="{% static 'images/wallet.svg' %}" width="50" height="50" class="d-inline-block align-top" alt="">-->
         <h1 style="font-family: 'Source Sans Pro', sans-serif;">SMFHCP</h1>
       </div>
       <div class="row border-0" style="background-color: white; margin: 140px 120px 0 120px; border-radius: 8px; box-shadow: 0 19px 38px rgba(0,0,0,0.12);">
@@ -35,13 +35,13 @@ body {
             </form>
           </div>
           <div class="col-md-6 text-center" style="background-color: #F9F9F9; border-top-right-radius: 8px; border-bottom-right-radius: 8px">
-            <a class="btn btn-danger" href="{% url 'social:begin' 'google-oauth2' %}?next=/" style="border-radius: 55px; margin-top: 90px;">
+            <a class="btn btn-danger" href="{% url 'social:begin' 'google-oauth2' %}" style="border-radius: 55px; margin-top: 90px;">
               <div class="row" style="padding-right: 21px;">
                 <div class="col-md-3" style="padding-right: 0px"><ion-icon name="logo-google" style="font-size: 30px; padding-top: 7px;"></ion-icon></div>
                 <div class="col-md-9" style="font-size: 15px; line-height: 40px; padding-left: 12px;">Log in with Google</div>
               </div>
             </a>
-            <a class="btn btn-primary" href="{% url 'social:begin' 'google-oauth2' %}?next=/" style="border-radius: 55px; margin-top: 40px;">
+            <a class="btn btn-primary" href="{% url 'social:begin' 'google-oauth2' %}" style="border-radius: 55px; margin-top: 40px;">
               <div class="row" style="padding-right: 21px;">
                 <div class="col-md-3" style="padding-right: 0px"><ion-icon name="logo-facebook" style="font-size: 30px; padding-top: 7px;"></ion-icon></div>
                 <div class="col-md-9" style="font-size: 15px; line-height: 40px; padding-left: 12px;">Log in with Facebook</div>
@@ -96,5 +96,4 @@ body {
         </div>
       </div>
     </div>
-
-</div>{% endblock %}
+{% endblock %}

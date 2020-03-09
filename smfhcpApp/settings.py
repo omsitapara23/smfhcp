@@ -108,8 +108,11 @@ SOCIAL_AUTH_GOOGLE_PLUS_SCOPE = [
 
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
-LOGIN_REDIRECT_URL = 'index'
+# LOGIN_REDIRECT_URL = 'login_info'
 LOGOUT_REDIRECT_URL = 'smfhcp'
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
+
 WSGI_APPLICATION = 'smfhcpApp.wsgi.application'
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '294673483220-ahvn6r7usfstrrakms57t5p40shlmvud.apps.googleusercontent.com'  # Paste CLient Key

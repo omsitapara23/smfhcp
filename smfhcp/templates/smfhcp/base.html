@@ -18,12 +18,12 @@
 
         <title>SMFHCP</title>
     </head>
-    {% if user.is_authenticated %}
+
+    {% if request.session.is_authenticated %}
 
     {% include 'smfhcp/nav.html'%}
 
     {% endif %}
     {% block content %}
     {% endblock %}
-  </body>
 </html>

@@ -2,3 +2,7 @@
 build
 dist
 smfhcp.egg-info
+smfhcp/__pycache__
+smfhcpApp/__pycache__
+smfhcpApp/migrations/__pycache__
+db.sqlite3
