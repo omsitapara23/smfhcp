@@ -1,98 +1,100 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{% extends 'smfhcp/base.html' %}
+{% block content %}
+{% load static %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<style>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+body {
+  background-color: #EFF0F2;
+}
 
-    <title>Hello, world!</title>
-  </head>
-  <body>
-    {% extends 'smfhcp/base.html' %}
-    {% block content %}
-    {% load static %}
-    <div class="container">
-     <div class="row">
-      <br><br>
-         <div>
-            <form action="login_username/"  method="POST">
-                {% csrf_token %}
-                <div class="form-group">
-                <label for="exampleInputPassword1">Username</label>
-                <input name="user_name" type="text" required="true" class="form-control" id="exampleInputUsername1" placeholder="User Name">
+.bg-light {
+  background-color: #ffffff !important;
+}
+
+</style>
+<script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
+
+    <div class="container" style="padding-top: 100px !important; padding-bottom: 100px !important;">
+      <div class="d-flex justify-content-center">
+        <img src="{% static 'images/wallet.svg' %}" width="50" height="50" class="d-inline-block align-top" alt="">
+        <h1 style="font-family: 'Source Sans Pro', sans-serif;">SMFHCP</h1>
+      </div>
+      <div class="row border-0" style="background-color: white; margin: 140px 120px 0 120px; border-radius: 8px; box-shadow: 0 19px 38px rgba(0,0,0,0.12);">
+          <div class="col-md-6" style="padding: 50px 50px 50px 50px;">
+            <form>
+              <div class="form-group">
+                <label for="exampleUsername1" style="font-size: 14px;">Username</label>
+                <input name="user_name" type="text" required="true" class="form-control" id="exampleUsername1">
               </div>
               <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input name="password" type="password" required="true" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                <label for="exampleInputPassword1" style="font-size: 14px;">Password</label>
+                <input name="password" type="password" class="form-control" id="exampleInputPassword1">
               </div>
-              <button type="submit" class="btn btn-primary">Log In</button>
+              <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 40px; border-radius: 40px !important;">Log In</button>
             </form>
-         </div>
-      <div class="col m6 card-panel white offset-m3" style="text-align:center">
-        <h1>Student Portal NIT DGP</h1>
-        <h4>Sign in to access all the facilities</h4>
-        <br>
-        <a href="{% url 'social:begin' 'google-oauth2' %}?next=/">
-         <img id="signInButton" src="http://www.setyourowntests.com/_/rsrc/1468869481521/help/accounts/btn_google_signin_dark_normal_web%402x.png" onclick="document.getElementById('signInButton').src='http://www.setyourowntests.com/_/rsrc/1468869481521/help/accounts/btn_google_signin_dark_normal_web%402x.png'">
-        </a>
-        <br>
+          </div>
+          <div class="col-md-6 text-center" style="background-color: #F9F9F9; border-top-right-radius: 8px; border-bottom-right-radius: 8px">
+            <a class="btn btn-danger" href="{% url 'social:begin' 'google-oauth2' %}?next=/" style="border-radius: 55px; margin-top: 90px;">
+              <div class="row" style="padding-right: 21px;">
+                <div class="col-md-3" style="padding-right: 0px"><ion-icon name="logo-google" style="font-size: 30px; padding-top: 7px;"></ion-icon></div>
+                <div class="col-md-9" style="font-size: 15px; line-height: 40px; padding-left: 12px;">Log in with Google</div>
+              </div>
+            </a>
+            <a class="btn btn-primary" href="{% url 'social:begin' 'google-oauth2' %}?next=/" style="border-radius: 55px; margin-top: 40px;">
+              <div class="row" style="padding-right: 21px;">
+                <div class="col-md-3" style="padding-right: 0px"><ion-icon name="logo-facebook" style="font-size: 30px; padding-top: 7px;"></ion-icon></div>
+                <div class="col-md-9" style="font-size: 15px; line-height: 40px; padding-left: 12px;">Log in with Facebook</div>
+              </div>
+            </a>
+          </div>
       </div>
-     </div>
+    </div>
 
-         <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+    <div class="d-flex justify-content-center">
+     <!-- Button trigger modal -->
+    <button type="button" class="btn btn-link" data-toggle="modal" data-target="#exampleModalCenter">
       Sign up instead
     </button>
+    </div>
 
     <!-- Modal -->
     <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
+        <div class="modal-content" style="background-color: #F9F9F9;">
+          <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
             <h5 class="modal-title" id="exampleModalLongTitle">Sign Up</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" style="padding: 20px 30px 30px 30px;">
             <div>
-            <form action="signup_email/"  method="POST">
-                {% csrf_token %}
-                <div class="form-group">
-                <label for="exampleInputPassword1">Username</label>
-                <input name="user_name" type="text" required="true" class="form-control" id="exampleInputUsername1" placeholder="User Name">
-              </div>
-              <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
-                <input name="email" type="email" required="true" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-              </div>
-              <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input name="password" type="password" required="true" class="form-control" id="exampleInputPassword1" placeholder="Password">
-              </div>
-                <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input name="password" type="password" required="true" class="form-control" id="exampleInputPassword1" placeholder="Confirm Password">
-              </div>
-              <button type="submit" class="btn btn-primary">Sign Up</button>
-            </form>
-         </div>
+              <form action="signup_email/"  method="POST">
+                  {% csrf_token %}
+                  <div class="form-group">
+                  <label for="exampleInputPassword1">Username</label>
+                  <input name="user_name" type="text" required="true" class="form-control" id="exampleInputUsername1">
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Email address</label>
+                    <input name="email" type="email" required="true" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleInputPassword2">Password</label>
+                    <input name="password" type="password" required="true" class="form-control" id="exampleInputPassword2">
+                  </div>
+                    <div class="form-group">
+                    <label for="exampleInputPassword3">Confirm Password</label>
+                    <input name="password" type="password" required="true" class="form-control" id="exampleInputPassword3">
+                  </div>
+                  <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Sign Up</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    </div>{% endblock %}
-
-  </body>
-</html>
+</div>{% endblock %}
