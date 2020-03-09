@@ -6,7 +6,7 @@
  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
  <!-- Material icons -->
  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head><title>Django</title>{% if user.is_authenticated %}<div class="navbar-fixed">
+</head><title>Django</title>{% if request.session.is_authenticated %}<div class="navbar-fixed">
     <nav class="blue">
         <div class="nav-wrapper container">
             <a href="/" class="brand-logo center">Google App</a>

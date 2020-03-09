@@ -1,7 +1,12 @@
 {% extends 'smfhcp/base.html' %}
 {% block content %}<div class="row">
+ {% if request.session.is_authenticated %}
  <div class="col s12 m6 offset-m3">
-  <H3>Hi {{ user.email }}!</H3>
+  <H3>Hi {{ request.session.email }}!</H3>
  </div>
+ {% else %}
+ <h1>Welcome, Join Us.</h1>
+ <h6><a href="/login">Log In</a></h6>
+ {% endif %}
 </div>
 {% endblock %}

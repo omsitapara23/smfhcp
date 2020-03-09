@@ -1,7 +1,6 @@
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from . import views
-from smfhcpApp.settings import LOGOUT_REDIRECT_URL
 
 urlpatterns = [
     path('', views.base_view, name='base'),

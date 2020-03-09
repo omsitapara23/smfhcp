@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
 from django.contrib.auth import logout as logout_user
 import elasticsearch
@@ -10,15 +9,14 @@ es = Elasticsearch(hosts=['192.168.116.82'])
 
 
 def base_view(request):
-    if request.user.is_authenticated is True:
-        return render(request, 'smfhcp/home.html')
-    else:
-        return redirect('/login/')
+    return render(request, 'smfhcp/home.html')
 
 
-@login_required
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def index(request):
+    request.session['user_name'] = request.user.username
+    request.session['email'] = request.user.email
+    request.session['is_authenticated'] = True
     body = {
         "user_name": request.user.username,
         "email": request.user.email
@@ -40,11 +38,13 @@ def index_user(body):
         if res['hits']['total']['value'] > 0:
             return False
         try:
-            res = es.get(index='general-user', id=body['user_name'])
+            es.get(index='general-user', id=body['user_name'])
         except elasticsearch.NotFoundError:
             es.index(index='general-user', id=body['user_name'], body=body)
             return True
         return False
+    else:
+        es.index(index='general-user', id=body['user_name'], body=body)
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -57,16 +57,17 @@ def signup_email(request):
     }
     if index_user(body) is False:
         return render(request, 'registrations/retry_signup.html')
-    request.user = {
-        "user_name": data.get('user_name'),
-        "email": data.get('email'),
-        "is_authenticated": True
-    }
+    request.session['user_name'] = data.get('user_name')
+    request.session['email'] = data.get('email')
+    request.session['is_authenticated'] = True
     return redirect('/')
 
 
-@login_required
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def logout(request):
     logout_user(request)
+    request.session['user_name'] = None
+    request.session['email'] = None
+    request.session['is_authenticated'] = False
     request.session.modified = True
     return redirect('/')
