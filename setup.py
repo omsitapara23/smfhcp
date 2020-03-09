@@ -6,5 +6,5 @@ setup(
     version='1.0.0',
     description='social media for healthcare professionals',
     packages=find_packages(),
-    install_requires=['elasticsearch', 'django', 'social-auth-app-django']
+    install_requires=['elasticsearch', 'django', 'social-auth-app-django', 'python-social-auth']
 )

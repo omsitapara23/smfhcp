@@ -1,0 +1,28 @@
+{% load static %}
+
+{% block nav %}
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light" style="padding: 15px 100px 15px 100px; border-bottom: 1px solid #e4e6e9">
+  <a class="navbar-brand" href="#">
+    <img src="{% static 'images/wallet.svg' %}" width="50" height="50" class="d-inline-block align-top" alt="">
+  </a>
+
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link active" href="#">SMFHCP <span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="#">Home</a>
+      <a class="nav-item nav-link" href="#">Trending</a>
+      <a class="nav-item nav-link" href="#">Add post</a>
+    </div>
+  </div>
+
+  <div class="form-inline">
+    <form class="form-inline">
+      <a class="nav-item nav-link" style="color: #838b9a;">{{ user.username }}</a>
+      <a class="btn btn-outline-dark my-2 my-sm-0" href="{% url 'logout' %}" type="submit">Logout</a>
+    </form>
+  </div>
+
+</nav>
+
+{% endblock %}
