@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_control
 from django.contrib.auth import logout as logout_user
+from django.contrib import messages
 import elasticsearch
 from elasticsearch import Elasticsearch
 from uuid import uuid4
@@ -156,6 +157,7 @@ def send_invite(request):
                 "token": token
             }
             #es.index(index='doctor-activation', id=email_id, body=body)
+        messages.success(request, 'Invitation sent successfully')
         return redirect('/')
     else:
         pass
