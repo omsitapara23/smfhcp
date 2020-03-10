@@ -18,6 +18,10 @@
 
   <div class="form-inline">
     <form class="form-inline">
+      {% if request.session.is_doctor %}
+      <!-- Button trigger modal -->
+      <a class="nav-item nav-link" data-toggle="modal" data-target="#exampleModalCenter">Invite doctor</a>
+      {% endif %}
       <a class="nav-item nav-link" style="color: #838b9a;">{{ request.session.user_name }}</a>
       <a class="btn btn-outline-dark my-2 my-sm-0" href="{% url 'logout' %}" type="submit">Logout</a>
     </form>

@@ -113,6 +113,12 @@ LOGOUT_REDIRECT_URL = 'smfhcp'
 
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'index'
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "smfhcp@gmail.com"
+EMAIL_HOST_PASSWORD = "adminofsmfhcp"
+EMAIL_PORT = 587
+
 WSGI_APPLICATION = 'smfhcpApp.wsgi.application'
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '294673483220-ahvn6r7usfstrrakms57t5p40shlmvud.apps.googleusercontent.com'  # Paste CLient Key
