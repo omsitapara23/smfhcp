@@ -13,7 +13,15 @@
       <a class="nav-item nav-link" href="#">Home</a>
       <a class="nav-item nav-link" href="#">Trending</a>
       {% if request.session.is_doctor %}
-      <a class="nav-item nav-link" href="#">Add post</a>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="addPost" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Add post
+        </a>
+        <div class="dropdown-menu" aria-labelledby="addPost">
+          <a class="dropdown-item" href="#">General Post</a>
+          <a class="dropdown-item" href="#">Case study</a>
+        </div>
+      </li>
       {% endif %}
     </div>
   </div>
@@ -22,9 +30,23 @@
     <form class="form-inline">
       {% if request.session.is_doctor %}
       <!-- Button trigger modal -->
-      <a class="nav-item nav-link" data-toggle="modal" data-target="#exampleModalCenter">Invite doctor</a>
+      <a class="nav-item nav-link" href="" data-toggle="modal" data-target="#exampleModalCenter">Invite doctor</a>
       {% endif %}
-      <a class="nav-item nav-link" style="color: #838b9a;">{{ request.session.user_name }}</a>
+      {% if request.session.is_doctor %}
+      <div class="dropdown" style="margin-right: 20px;">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ request.session.user_name }}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">View profile</a>
+          <a class="dropdown-item" href="#">Update profile</a>
+        </div>
+      </div>
+      {% else %}
+        <a class="nav-item nav-link" style="color: #838b9a;">
+        {{ request.session.user_name }}
+        </a>
+      {% endif %}
       <a class="btn btn-outline-dark my-2 my-sm-0" href="{% url 'logout' %}" type="submit">Logout</a>
     </form>
   </div>
