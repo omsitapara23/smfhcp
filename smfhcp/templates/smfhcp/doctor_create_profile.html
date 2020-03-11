@@ -1,0 +1,87 @@
+{% extends 'smfhcp/base.html' %}
+{% block content %}
+
+{% load static %}
+
+{% if request.session.is_authenticated %}
+
+<div class="container" style="padding: 300px;">
+ <h1>Please log out and try again.</h1>
+</div>
+
+{% else %}
+
+<div class="container" style="padding-top: 40px !important; padding-bottom: 40px !important;">
+  <div class="row border-0" style="background-color: white; margin: 40px 120px 40px 120px; border-radius: 8px;">
+      <div class="col-md-12" style="padding: 50px 50px 50px 50px;">
+        <form action="create_profile/" method="POST" id="createProfileForm">
+            {% csrf_token %}
+            <h2>General profile</h2>
+          <div class="form-group">
+            <label for="exampleUsername1">Username</label>
+            <input name="user_name" type="text" required="true" class="form-control" id="exampleUsername1">
+          </div>
+            <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input name="firstName" type="text" required="true" class="form-control" id="firstName">
+          </div>
+            <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input name="lastName" type="text" required="true" class="form-control" id="lastName">
+          </div>
+           <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input name="email" type="email" required="true" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+          </div>
+            {% if messages %}
+                {% for message in messages %}
+                   <div class="form-group">
+                       <label for="otpField">OTP</label>
+                       <input name="otp" type="text" readonly class="form-control-plaintext" class="form-control" id="otpField" value="{% if message.tags == 'info' %}{{ message }}{% endif %}">
+                   </div>
+                {% endfor %}
+            {% endif %}
+            <div class="form-group">
+                <label for="txtPassword">Password</label>
+                <input name="password" type="password" required="true" class="form-control" id="txtPassword">
+            </div>
+            <div class="form-group">
+                <label for="txtConfirmPassword">Confirm Password</label>
+                <input name="password" type="password" required="true" class="form-control" id="txtConfirmPassword">
+            </div>
+            <hr/>
+            <h2>Experience</h2>
+            <div class="form-group">
+               <label for="qualification">Qualifications</label>
+               <input name="qualification" type="text" required="true" class="form-control" id="qualification">
+                <small id="qualHelp" class="form-text text-muted">Please enter a comma separated list.</small>
+            </div>
+            <div class="form-group">
+               <label for="profession">Profession</label>
+               <input name="profession" type="text" required="true" class="form-control" id="profession">
+            </div>
+            <div class="form-group">
+               <label for="institution">Institution</label>
+               <input name="institution" type="text" required="true" class="form-control" id="institution">
+            </div>
+            <div class="form-group">
+               <label for="researchInterests">Research interests</label>
+               <input name="researchInterests" type="text" required="true" class="form-control" id="researchInterests">
+                <small id="researchIntHelp" class="form-text text-muted">Please enter a comma separated list.</small>
+            </div>
+            <div class="form-group">
+               <label for="clinicalInterests">Clinical interests</label>
+               <input name="clinicalInterests" type="text" required="true" class="form-control" id="clinicalInterests">
+                <small id="clinicalIntHelp" class="form-text text-muted">Please enter a comma separated list.</small>
+            </div>
+            <div id="errorDiv" role="alert"></div>
+          <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 40px; border-radius: 40px !important;">Create Profile</button>
+        </form>
+      </div>
+  </div>
+</div>
+
+{% endif %}
+
+<script src="{% static 'js/createProfile.js' %}"></script>
+{% endblock %}

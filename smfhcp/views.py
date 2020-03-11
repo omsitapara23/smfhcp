@@ -10,6 +10,7 @@ from random import randint
 import json
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
 es = Elasticsearch(hosts=['192.168.116.82'])
 
@@ -156,12 +157,12 @@ def login_user(request):
 
 def check_email_existence(email_id):
     query_body = {
-            "query": {
-                "match": {
-                    "email": email_id
-                }
+        "query": {
+            "match": {
+                "email": email_id
             }
         }
+    }
     res = es.search(index=['general-user', 'doctor'], body=query_body)
     if res['hits']['total']['value'] > 0:
         return False, "User already exists."
@@ -174,7 +175,7 @@ def check_email_existence(email_id):
 
 def send_invitation_email(receiver_email, token):
     subject = "Invitation to join SMFHCP as a Health care Professional"
-    message = "Please open this link http://127.0.0.1:8000/doctor_signup to join SMFHCP.\n Please enter this OTP {} while signing up.".format(token)
+    message = "Please open this link http://127.0.0.1:8000/doctor_signup/{} to join SMFHCP.\n".format(token)
     try:
         send_mail(subject, from_email=settings.EMAIL_HOST_USER,
                   recipient_list=[receiver_email], message=message, fail_silently=False)
@@ -224,6 +225,78 @@ def send_invite(request):
             json.dumps(response_data),
             content_type="application/json"
         )
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def doctor_signup(request, otp):
+    print(otp)
+    if "is_authenticated" not in request.session or request.session['is_authenticated'] is False:
+        messages.info(request, otp)
+    return render(request, 'smfhcp/doctor_create_profile.html')
+
+
+def index_doctor(request, res, data):
+    request.session['user_name'] = data.get('user_name')
+    request.session['email'] = data.get('email')
+    request.session['is_authenticated'] = True
+    request.session['is_doctor'] = True
+    body = {
+        "user_name": data.get('user_name'),
+        "email": data.get('email'),
+        "password_hash": find_hash(data.get('password')),
+        "full_name": data.get('firstName') + ' ' + data.get('lastName'),
+        "qualification": [s.strip() for s in str(data.get('qualification')).split(",")],
+        "research_interests": [s.strip() for s in str(data.get('researchInterests')).split(",")],
+        "profession": data.get('profession'),
+        "institution": data.get('institution'),
+        "clinical_interests": [s.strip() for s in str(data.get('clinicalInterests')).split(",")]
+    }
+    es.index(index='doctor', id=body['user_name'], body=body)
+
+
+def create_profile(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        res, _ = find_user(data.get('user_name'))
+        if res is None:
+            try:
+                res = es.get(index='doctor-activation', id=data.get('email'))
+                if str(res['_source']['token']) == str(data.get('otp')):
+                    index_doctor(request, res, data)
+                    response_data = {
+                        "redirect": True,
+                        "redirect_url": "/"
+                    }
+                    return HttpResponse(
+                        json.dumps(response_data),
+                        content_type="application/json"
+                    )
+                else:
+                    response_data = {
+                        "message": 'OTP, email pair do not match.'
+                    }
+                    return HttpResponse(
+                        json.dumps(response_data),
+                        content_type="application/json"
+                    )
+            except elasticsearch.NotFoundError:
+                response_data = {
+                    "message": 'This email id does not have an invite.'
+                }
+                return HttpResponse(
+                    json.dumps(response_data),
+                    content_type="application/json"
+                )
+        else:
+            response_data = {
+                "message": 'Username already exists.'
+            }
+            return HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+            )
+    else:
+        raise PermissionDenied()
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

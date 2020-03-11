@@ -25,11 +25,11 @@ body {
             <form action="login_user/" method="POST" id="loginForm">
                 {% csrf_token %}
               <div class="form-group">
-                <label for="exampleUsername1" style="font-size: 14px;">Username</label>
+                <label for="exampleUsername1">Username</label>
                 <input name="user_name" type="text" required="true" class="form-control" id="exampleUsername1">
               </div>
               <div class="form-group">
-                <label for="exampleInputPassword1" style="font-size: 14px;">Password</label>
+                <label for="exampleInputPassword1">Password</label>
                 <input name="password" type="password" class="form-control" id="exampleInputPassword1">
               </div>
                 <div id="msgDivLogin" role="alert"></div>
@@ -75,8 +75,8 @@ body {
               <form action="signup_email/"  method="POST" id="signUpForm">
                   {% csrf_token %}
                   <div class="form-group">
-                  <label for="exampleInputUsername1">Username</label>
-                  <input name="user_name" type="text" required="true" class="form-control" id="exampleInputUsername1">
+                      <label for="exampleInputUsername1">Username</label>
+                      <input name="user_name" type="text" required="true" class="form-control" id="exampleInputUsername1">
                       <small id="usernameHelp" class="form-text text-muted">Valid characters are A-Z a-z 0-9 _</small>
                   </div>
                   <div class="form-group">

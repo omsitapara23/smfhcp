@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '0-t+)4572s)m$6a$ru5*v-81scs5*w3*u$@oi4^dm-p5(wida-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 AUTHENTICATION_BACKENDS = [
  'social_core.backends.open_id.OpenIdAuth',

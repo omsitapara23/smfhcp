@@ -43,7 +43,7 @@ function invite() {
         },
 
         success : function(json) {
-            console.log("Invite sent")
+            console.log("Invite is sent")
             $('#exampleInputEmail1').val('');
             $('#msgDiv').removeClass("alert alert-success alert-danger")
             if (json.success) {
@@ -91,11 +91,11 @@ function login() {
 function checkValidity() {
     $('#errorDiv').html('')
     $('#errorDiv').removeClass("alert alert-danger")
-    var nameRegex = /^[a-zA-Z_]+$/;
+    var nameRegex = /^[a-zA-Z0-9_]+$/;
     var validUsername = $("#exampleInputUsername1").val().match(nameRegex);
     if(validUsername == null){
-        $('#errorDiv').addClass("alert alert-danger").html("Your user name is not valid. Only characters A-Z, a-z and '_' are acceptable.");
-        console.log("username wrong");
+        $('#errorDiv').addClass("alert alert-danger").html("Your user name is not valid. Only characters A-Z, a-z, 0-9 and '_' are acceptable.");
+        console.log("username entered wrong");
         return false;
     }
     var password = $("#txtPassword").val();
