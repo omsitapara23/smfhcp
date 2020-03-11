@@ -1,19 +1,19 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_control
 from django.contrib.auth import logout as logout_user
-from django.contrib import messages
 import elasticsearch
 from elasticsearch import Elasticsearch
-from uuid import uuid4
 import hashlib
 from django.core.mail import send_mail
 from django.conf import settings
 from random import randint
+import json
+from django.http import HttpResponse
 
 es = Elasticsearch(hosts=['192.168.116.82'])
 
 
-def random_with_N_digits(n):
+def random_with_n_digits(n):
     range_start = 10**(n-1)
     range_end = (10**n)-1
     return randint(range_start, range_end)
@@ -72,7 +72,7 @@ def find_user(user_name):
             res_doctor = es.get(index=['doctor'], id=user_name)
             return res_doctor['_source'], True
         except elasticsearch.NotFoundError:
-            return None
+            return None, None
 
 
 def find_hash(input):
@@ -88,12 +88,25 @@ def signup_email(request):
         "password_hash": find_hash(data.get('password'))
     }
     if index_user(body) is False:
-        return render(request, 'registrations/retry_signup.html')
+        response_data = {
+            "message": 'User name or email already exists.'
+        }
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
     request.session['user_name'] = data.get('user_name')
     request.session['email'] = data.get('email')
     request.session['is_authenticated'] = True
     request.session['is_doctor'] = False
-    return redirect('/')
+    response_data = {
+        "redirect": True,
+        "redirect_url": "/"
+    }
+    return HttpResponse(
+        json.dumps(response_data),
+        content_type="application/json"
+    )
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -108,12 +121,25 @@ def login_user(request):
             request.session['is_doctor'] = True
         else:
             request.session['is_doctor'] = False
-        return redirect('/')
+        response_data = {
+            "redirect": True,
+            "redirect_url": "/"
+        }
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
     else:
-        return render(request, 'registrations/retry_signup.html')
+        response_data = {
+            "message": 'Username/Password does not match.'
+        }
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
 
 
-def index_with_token(token, email_id):
+def check_email_existence(email_id):
     query_body = {
             "query": {
                 "match": {
@@ -123,10 +149,10 @@ def index_with_token(token, email_id):
         }
     res = es.search(index=['general-user', 'doctor'], body=query_body)
     if res['hits']['total']['value'] > 0:
-        return False, "User already exists"
+        return False, "User already exists."
     try:
         es.get(index='doctor-activation', id=email_id)
-        return False, "User already invited"
+        return False, "User already invited."
     except elasticsearch.NotFoundError:
         return True, "Sent Invite"
 
@@ -135,7 +161,8 @@ def send_invitation_email(receiver_email, token):
     subject = "Invitation to join SMFHCP as a Health care Professional"
     message = "Please open this link http://127.0.0.1:8000/doctor_signup to join SMFHCP.\n Please enter this OTP {} while signing up.".format(token)
     try:
-        send_mail(subject, from_email=settings.EMAIL_HOST_USER, recipient_list=[receiver_email], message=message, fail_silently=False)
+        send_mail(subject, from_email=settings.EMAIL_HOST_USER,
+                  recipient_list=[receiver_email], message=message, fail_silently=False)
         return True
     except Exception:
         print("Error in sending mail")
@@ -144,11 +171,10 @@ def send_invitation_email(receiver_email, token):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def send_invite(request):
-    data = request.POST.copy()
-    email_id = data.get('email_send_invite')
-    token = random_with_N_digits(6)
+    email_id = request.POST.get('email')
+    token = random_with_n_digits(6)
     print(token)
-    valid, message = index_with_token(token, email_id)
+    valid, message = check_email_existence(email_id)
     if valid is True:
         res = send_invitation_email(email_id, token)
         if res is True:
@@ -156,11 +182,33 @@ def send_invite(request):
                 "email": email_id,
                 "token": token
             }
-            #es.index(index='doctor-activation', id=email_id, body=body)
-        messages.success(request, 'Invitation sent successfully')
-        return redirect('/')
+            es.index(index='doctor-activation', id=email_id, body=body)
+            response_data = {
+                "message": 'Invitation sent successfully.',
+                "success": True
+            }
+            return HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+            )
+        else:
+            response_data = {
+                "message": 'Could not send email.',
+                "success": False
+            }
+            return HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+            )
     else:
-        pass
+        response_data = {
+            "message": message,
+            "success": False
+        }
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

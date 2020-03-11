@@ -1,5 +1,8 @@
 {% extends 'smfhcp/base.html' %}
 {% block content %}
+
+{% load static %}
+
 <div class="container" style="padding: 300px;">
  {% if request.session.is_authenticated %}
   <H3>Hi {{ request.session.email }}!</H3>
@@ -17,18 +20,19 @@
      <div class="modal-content" style="background-color: #F9F9F9;">
        <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
          <h5 class="modal-title" id="exampleModalLongTitle">Invite doctor</h5>
-         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="inviteModalCloseButton">
            <span aria-hidden="true">&times;</span>
          </button>
        </div>
        <div class="modal-body" style="padding: 20px 30px 30px 30px;">
          <div>
-           <form action="send_invite/"  method="POST">
+           <form action="send_invite/"  method="POST" id="invite-form">
                {% csrf_token %}
                <div class="form-group">
                  <label for="exampleInputEmail1">Email address</label>
                  <input name="email_send_invite" type="email" required="true" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
                </div>
+               <div id="msgDiv" role="alert"></div>
                <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Send Invite</button>
            </form>
          </div>
@@ -37,4 +41,5 @@
    </div>
  </div>
 
+<script src="{% static 'js/invite.js' %}"></script>
 {% endblock %}

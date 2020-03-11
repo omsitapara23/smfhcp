@@ -12,7 +12,9 @@
       <a class="nav-item nav-link active" href="#">SMFHCP <span class="sr-only">(current)</span></a>
       <a class="nav-item nav-link" href="#">Home</a>
       <a class="nav-item nav-link" href="#">Trending</a>
+      {% if request.session.is_doctor %}
       <a class="nav-item nav-link" href="#">Add post</a>
+      {% endif %}
     </div>
   </div>
 

@@ -13,7 +13,7 @@ body {
 }
 
 </style>
-<script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
+    <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
 
     <div class="container" style="padding-top: 100px !important; padding-bottom: 100px !important;">
       <div class="d-flex justify-content-center">
@@ -22,7 +22,7 @@ body {
       </div>
       <div class="row border-0" style="background-color: white; margin: 140px 120px 0 120px; border-radius: 8px; box-shadow: 0 19px 38px rgba(0,0,0,0.12);">
           <div class="col-md-6" style="padding: 50px 50px 50px 50px;">
-            <form action="login_user/" method="POST">
+            <form action="login_user/" method="POST" id="loginForm">
                 {% csrf_token %}
               <div class="form-group">
                 <label for="exampleUsername1" style="font-size: 14px;">Username</label>
@@ -32,6 +32,7 @@ body {
                 <label for="exampleInputPassword1" style="font-size: 14px;">Password</label>
                 <input name="password" type="password" class="form-control" id="exampleInputPassword1">
               </div>
+                <div id="msgDivLogin" role="alert"></div>
               <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 40px; border-radius: 40px !important;">Log In</button>
             </form>
           </div>
@@ -65,31 +66,32 @@ body {
         <div class="modal-content" style="background-color: #F9F9F9;">
           <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
             <h5 class="modal-title" id="exampleModalLongTitle">Sign Up</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="signUpFormCloseButton">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body" style="padding: 20px 30px 30px 30px;">
             <div>
-              <form action="signup_email/"  method="POST">
+              <form action="signup_email/"  method="POST" id="signUpForm">
                   {% csrf_token %}
                   <div class="form-group">
                   <label for="exampleInputUsername1">Username</label>
                   <input name="user_name" type="text" required="true" class="form-control" id="exampleInputUsername1">
+                      <small id="usernameHelp" class="form-text text-muted">Valid characters are A-Z a-z 0-9 _</small>
                   </div>
                   <div class="form-group">
                     <label for="exampleInputEmail1">Email address</label>
                     <input name="email" type="email" required="true" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                   </div>
                   <div class="form-group">
-                    <label for="exampleInputPassword2">Password</label>
-                    <input name="password" type="password" required="true" class="form-control" id="exampleInputPassword2">
+                    <label for="txtPassword">Password</label>
+                    <input name="password" type="password" required="true" class="form-control" id="txtPassword">
                   </div>
                     <div class="form-group">
-                    <label for="exampleInputPassword3">Confirm Password</label>
-                    <input name="password" type="password" required="true" class="form-control" id="exampleInputPassword3">
+                    <label for="txtConfirmPassword">Confirm Password</label>
+                    <input name="password" type="password" required="true" class="form-control" id="txtConfirmPassword">
                   </div>
+                  <div id="errorDiv" role="alert"></div>
                   <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Sign Up</button>
               </form>
             </div>
@@ -97,4 +99,6 @@ body {
         </div>
       </div>
     </div>
+
+    <script src="{% static 'js/invite.js' %}"></script>
 {% endblock %}
