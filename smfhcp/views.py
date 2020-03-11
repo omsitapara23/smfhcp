@@ -24,6 +24,14 @@ def base_view(request):
     return render(request, 'smfhcp/home.html')
 
 
+def handler404(request, exception):
+    return render(request, 'smfhcp/404.html', status=404)
+
+
+def handler500(request):
+    return render(request, 'smfhcp/500.html', status=500)
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def index(request):
     request.session['user_name'] = request.user.username
