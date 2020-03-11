@@ -245,11 +245,11 @@ def index_doctor(request, res, data):
         "email": data.get('email'),
         "password_hash": find_hash(data.get('password')),
         "full_name": data.get('firstName') + ' ' + data.get('lastName'),
-        "qualification": [s.strip() for s in str(data.get('qualification')).split(",")],
-        "research_interests": [s.strip() for s in str(data.get('researchInterests')).split(",")],
+        "qualification": [s.strip() for s in json.loads(data.get('qualification'))['qualifications']],
+        "research_interests": [s.strip() for s in json.loads(data.get('researchInterests'))['researchInterests']],
         "profession": data.get('profession'),
         "institution": data.get('institution'),
-        "clinical_interests": [s.strip() for s in str(data.get('clinicalInterests')).split(",")]
+        "clinical_interests": [s.strip() for s in json.loads(data.get('clinicalInterests'))['clinicalInterests']]
     }
     es.index(index='doctor', id=body['user_name'], body=body)
 

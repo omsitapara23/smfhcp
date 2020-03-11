@@ -30,15 +30,27 @@ function checkValidity() {
 
 function createProfile() {
     var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+    var qualifications = []
+    var researchInterests = []
+    var clinicalInterests = []
+    $('input[name="qualification[]"]').each(function() {
+        qualifications.push($(this).val());
+    });
+    $('input[name="researchInterests[]"]').each(function() {
+        researchInterests.push($(this).val());
+    });
+    $('input[name="clinicalInterests[]"]').each(function() {
+        clinicalInterests.push($(this).val());
+    });
     if(checkValidity()) {
         $.ajax({
             url : "/create_profile/",
             type : "POST",
             data : { user_name : $('#exampleUsername1').val(), password : $('#txtPassword').val(),
             email : $('#exampleInputEmail1').val(), otp: $('#otpField').val(), firstName : $('#firstName').val(),
-            lastName : $('#lastName').val(), qualification : $('#qualification').val(), profession : $('#profession').val(),
-            institution : $('#institution').val(), researchInterests : $('#researchInterests').val(),
-            clinicalInterests : $('#clinicalInterests').val() },
+            lastName : $('#lastName').val(), qualification : JSON.stringify({ 'qualifications': qualifications }), profession : $('#profession').val(),
+            institution : $('#institution').val(), researchInterests : JSON.stringify({ 'researchInterests': researchInterests }),
+            clinicalInterests : JSON.stringify({ 'clinicalInterests': clinicalInterests }) },
             beforeSend: function(xhr, settings) {
                 if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -62,3 +74,44 @@ function createProfile() {
         });
     }
 }
+
+$("#qualAddButton").click(function(){
+    $("#qualWrapper").append("<div class=\"input-group\" style=\"margin-top: 10px;\">" +
+                    "<input name=\"qualification[]\" type=\"text\" required=\"true\" class=\"form-control\">" +
+                    "<span class=\"input-group-btn\">" +
+                        "<button class=\"btn btn-success btn-remove\" type=\"button\">" +
+                            "<ion-icon name=\"remove-outline\"></ion-icon>" +
+                        "</button>" +
+                    "</span>" +
+                "</div>");
+});
+
+$("#researchIntAddButton").click(function(){
+    $("#researchIntWrapper").append("<div class=\"input-group\" style=\"margin-top: 10px;\">" +
+                    "<input name=\"researchInterests[]\" type=\"text\" required=\"true\" class=\"form-control\">" +
+                    "<span class=\"input-group-btn\">" +
+                        "<button class=\"btn btn-success btn-remove\" type=\"button\">" +
+                            "<ion-icon name=\"remove-outline\"></ion-icon>" +
+                        "</button>" +
+                    "</span>" +
+                "</div>");
+});
+
+$("#clinicalIntAddButton").click(function(){
+    $("#clinicalIntWrapper").append("<div class=\"input-group\" style=\"margin-top: 10px;\">" +
+                    "<input name=\"clinicalInterests[]\" type=\"text\" required=\"true\" class=\"form-control\">" +
+                    "<span class=\"input-group-btn\">" +
+                        "<button class=\"btn btn-success btn-remove\" type=\"button\">" +
+                            "<ion-icon name=\"remove-outline\"></ion-icon>" +
+                        "</button>" +
+                    "</span>" +
+                "</div>");
+});
+
+$(document).ready(function() {
+    $(document).on("click",".btn-remove", function(e){
+		e.preventDefault();
+		 $(this).parents('.input-group:first').remove();
+	})
+}
+);
