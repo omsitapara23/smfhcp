@@ -9,6 +9,7 @@ from django.conf import settings
 from random import randint
 import json
 from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
 
 es = Elasticsearch(hosts=['192.168.116.82'])
 
@@ -81,46 +82,25 @@ def find_hash(input):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def signup_email(request):
-    data = request.POST.copy()
-    body = {
-        "user_name": data.get('user_name'),
-        "email": data.get('email'),
-        "password_hash": find_hash(data.get('password'))
-    }
-    if index_user(body) is False:
-        response_data = {
-            "message": 'User name or email already exists.'
+    if request.method == 'POST':
+        data = request.POST.copy()
+        body = {
+            "user_name": data.get('user_name'),
+            "email": data.get('email'),
+            "password_hash": find_hash(data.get('password'))
         }
-        return HttpResponse(
-            json.dumps(response_data),
-            content_type="application/json"
-        )
-    request.session['user_name'] = data.get('user_name')
-    request.session['email'] = data.get('email')
-    request.session['is_authenticated'] = True
-    request.session['is_doctor'] = False
-    response_data = {
-        "redirect": True,
-        "redirect_url": "/"
-    }
-    return HttpResponse(
-        json.dumps(response_data),
-        content_type="application/json"
-    )
-
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def login_user(request):
-    data = request.POST.copy()
-    res, is_doctor = find_user(data.get('user_name'))
-    if res is not None and find_hash(data.get('password')) == res['password_hash']:
-        request.session['user_name'] = res['user_name']
-        request.session['email'] = res['email']
+        if index_user(body) is False:
+            response_data = {
+                "message": 'User name or email already exists.'
+            }
+            return HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+            )
+        request.session['user_name'] = data.get('user_name')
+        request.session['email'] = data.get('email')
         request.session['is_authenticated'] = True
-        if is_doctor is True:
-            request.session['is_doctor'] = True
-        else:
-            request.session['is_doctor'] = False
+        request.session['is_doctor'] = False
         response_data = {
             "redirect": True,
             "redirect_url": "/"
@@ -130,13 +110,40 @@ def login_user(request):
             content_type="application/json"
         )
     else:
-        response_data = {
-            "message": 'Username/Password does not match.'
-        }
-        return HttpResponse(
-            json.dumps(response_data),
-            content_type="application/json"
-        )
+        raise PermissionDenied()
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def login_user(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        res, is_doctor = find_user(data.get('user_name'))
+        if res is not None and find_hash(data.get('password')) == res['password_hash']:
+            request.session['user_name'] = res['user_name']
+            request.session['email'] = res['email']
+            request.session['is_authenticated'] = True
+            if is_doctor is True:
+                request.session['is_doctor'] = True
+            else:
+                request.session['is_doctor'] = False
+            response_data = {
+                "redirect": True,
+                "redirect_url": "/"
+            }
+            return HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+            )
+        else:
+            response_data = {
+                "message": 'Username/Password does not match.'
+            }
+            return HttpResponse(
+                json.dumps(response_data),
+                content_type="application/json"
+            )
+    else:
+        raise PermissionDenied()
 
 
 def check_email_existence(email_id):
