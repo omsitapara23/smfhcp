@@ -80,7 +80,7 @@ $("#qualAddButton").click(function(){
                     "<input name=\"qualification[]\" type=\"text\" required=\"true\" class=\"form-control\">" +
                     "<span class=\"input-group-btn\">" +
                         "<button class=\"btn btn-success btn-remove\" type=\"button\">" +
-                            "<ion-icon name=\"remove-outline\"></ion-icon>" +
+                            "<i class=\"fa fa-minus\"></i>" +
                         "</button>" +
                     "</span>" +
                 "</div>");
@@ -91,7 +91,7 @@ $("#researchIntAddButton").click(function(){
                     "<input name=\"researchInterests[]\" type=\"text\" required=\"true\" class=\"form-control\">" +
                     "<span class=\"input-group-btn\">" +
                         "<button class=\"btn btn-success btn-remove\" type=\"button\">" +
-                            "<ion-icon name=\"remove-outline\"></ion-icon>" +
+                            "<i class=\"fa fa-minus\"></i>" +
                         "</button>" +
                     "</span>" +
                 "</div>");
@@ -102,7 +102,7 @@ $("#clinicalIntAddButton").click(function(){
                     "<input name=\"clinicalInterests[]\" type=\"text\" required=\"true\" class=\"form-control\">" +
                     "<span class=\"input-group-btn\">" +
                         "<button class=\"btn btn-success btn-remove\" type=\"button\">" +
-                            "<ion-icon name=\"remove-outline\"></ion-icon>" +
+                            "<i class=\"fa fa-minus\"></i>" +
                         "</button>" +
                     "</span>" +
                 "</div>");
