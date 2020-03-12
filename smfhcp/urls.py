@@ -13,5 +13,7 @@ urlpatterns = [
     path('send_invite/', views.send_invite, name='send_invite'),
     path('doctor_signup/<int:otp>/', views.doctor_signup, name='doctor_signup'),
     path('create_profile/', views.create_profile, name='create_profile'),
+    path('view_profile/<str:user_name>', views.view_profile, name='view_profile'),
+    path('update_profile/', views.update_profile, name='update_profile'),
     path('oauth/', include('social_django.urls', namespace='social'))
 ]

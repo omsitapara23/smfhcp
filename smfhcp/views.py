@@ -300,6 +300,33 @@ def create_profile(request):
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def view_profile(request, user_name):
+    res_doctor = es.get(index=['doctor'], id=user_name)
+    print(res_doctor)
+    context = {
+        'user_name': res_doctor['_source']['user_name'],
+        'full_name': res_doctor['_source']['full_name'],
+        'email': res_doctor['_source']['email'],
+        'qualification': res_doctor['_source']['qualification'],
+        'research_interests': res_doctor['_source']['research_interests'],
+        'profession': res_doctor['_source']['profession'],
+        'institution': res_doctor['_source']['institution'],
+        'clinical_interests': res_doctor['_source']['clinical_interests']
+    }
+    return render(request, 'smfhcp/view_profile.html', context)
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def update_profile(request):
+    print(request.POST.get('password'))
+    # find the fields from the post request
+    # update in database
+    # send the relevant error messages
+    # else redirect to /view_profile/{user_name}
+    return redirect('/view_profile/' + str(request.session['user_name']))
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def logout(request):
     logout_user(request)
     request.session['user_name'] = None

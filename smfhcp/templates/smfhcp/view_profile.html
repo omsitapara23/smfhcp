@@ -1,0 +1,46 @@
+{% extends 'smfhcp/base.html' %}
+{% block content %}
+
+{% load static %}
+
+{% if request.session.is_authenticated %}
+{% if request.session.is_doctor %}
+<div class="container" style="padding: 100px 200px 100px 200px;">
+    <h2>{{ full_name }}</h2>
+    <p class="text-left">{{ profession }}, {{ institution }}</p>
+    <div class="row">
+        <div class="col-md-8">
+            <h5>Research Interests</h5>
+            <p class="text-left">
+                <ul>
+                {% for r in research_interests %}
+                    <li>{{ r }}</li>
+                {% endfor %}
+                </ul>
+            </p>
+            <h5>Clinical Interests</h5>
+            <p class="text-left">
+                <ul>
+                {% for r in clinical_interests %}
+                    <li>{{ r }}</li>
+                {% endfor %}
+                </ul>
+            </p>
+        </div>
+        <div class="col-md-4">
+            <h4>Qualifications</h4>
+            <p class="text-left">
+                <ul>
+                {% for r in qualification %}
+                    <li>{{ r }}</li>
+                {% endfor %}
+                </ul>
+            </p>
+        </div>
+    </div>
+    <hr>
+</div>
+{% endif %}
+{% endif %}
+
+{% endblock %}

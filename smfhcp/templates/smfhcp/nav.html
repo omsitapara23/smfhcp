@@ -10,7 +10,7 @@
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     <div class="navbar-nav">
       <a class="nav-item nav-link active" href="#">SMFHCP <span class="sr-only">(current)</span></a>
-      <a class="nav-item nav-link" href="#">Home</a>
+      <a class="nav-item nav-link" href="/">Home</a>
       <a class="nav-item nav-link" href="#">Trending</a>
       {% if request.session.is_doctor %}
       <li class="nav-item dropdown">
@@ -38,8 +38,8 @@
           {{ request.session.user_name }}
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="#">View profile</a>
-          <a class="dropdown-item" href="#">Update profile</a>
+          <a class="dropdown-item" href="/view_profile/{{ request.session.user_name }}">View profile</a>
+          <a class="dropdown-item" href="" data-toggle="modal" data-target="#updateProfileModal">Update profile</a>
         </div>
       </div>
       {% else %}
@@ -52,5 +52,82 @@
   </div>
 
 </nav>
+
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered" role="document">
+     <div class="modal-content" style="background-color: #F9F9F9;">
+       <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
+         <h5 class="modal-title" id="exampleModalLongTitle">Invite doctor</h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="inviteModalCloseButton">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <div class="modal-body" style="padding: 20px 30px 30px 30px;">
+         <div>
+           <form action="send_invite/"  method="POST" id="invite-form">
+               {% csrf_token %}
+               <div class="form-group">
+                 <label for="exampleInputEmail1">Email address</label>
+                 <input name="email_send_invite" type="email" required="true" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+               </div>
+               <div id="msgDiv" role="alert"></div>
+               <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Send Invite</button>
+           </form>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+
+<div class="modal fade" id="updateProfileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered" role="document">
+     <div class="modal-content" style="background-color: #F9F9F9;">
+       <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
+         <h5 class="modal-title" id="updateProfileModalTitle">Update Profile</h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="updateProfileModalCloseButton">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <div class="modal-body" style="padding: 20px 30px 30px 30px;">
+         <div>
+           <form action="/update_profile/"  method="POST" id="update-profile-form">
+               {% csrf_token %}
+               <div class="form-group">
+                <label for="txtPassword">Update Password</label>
+                <input name="password" type="password" class="form-control" id="txtPassword">
+               </div>
+              <div class="form-group">
+                 <label for="qualification">Update Qualifications</label>
+                 <input name="qualification" type="text" class="form-control" id="qualification">
+                  <small id="qualHelp" class="form-text text-muted">Please enter a comma separated list.</small>
+              </div>
+              <div class="form-group">
+                 <label for="profession">Update Profession</label>
+                 <input name="profession" type="text"  class="form-control" id="profession">
+              </div>
+              <div class="form-group">
+                 <label for="institution">Update Institution</label>
+                 <input name="institution" type="text" class="form-control" id="institution">
+              </div>
+              <div class="form-group">
+                 <label for="researchInterests">Update Research interests</label>
+                 <input name="researchInterests" type="text" class="form-control" id="researchInterests">
+                  <small id="researchIntHelp" class="form-text text-muted">Please enter a comma separated list.</small>
+              </div>
+              <div class="form-group">
+                 <label for="clinicalInterests">Update Clinical interests</label>
+                 <input name="clinicalInterests" type="text" class="form-control" id="clinicalInterests">
+                  <small id="clinicalIntHelp" class="form-text text-muted">Please enter a comma separated list.</small>
+              </div>
+               <div id="msgDivUpdateProfile" role="alert"></div>
+               <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Update</button>
+           </form>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+
+<script src="{% static 'js/invite.js' %}"></script>
 
 {% endblock %}
