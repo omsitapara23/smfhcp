@@ -39,7 +39,7 @@ function csrfSafeMethod(method) {
 function invite() {
     var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
     $.ajax({
-        url : "send_invite/",
+        url : "/send_invite/",
         type : "POST",
         data : { email : $('#exampleInputEmail1').val()},
         beforeSend: function(xhr, settings) {
