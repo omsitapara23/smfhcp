@@ -15,5 +15,8 @@ urlpatterns = [
     path('create_profile/', views.create_profile, name='create_profile'),
     path('view_profile/<str:user_name>', views.view_profile, name='view_profile'),
     path('update_profile/', views.update_profile, name='update_profile'),
+    path('create_post/case_study/', views.create_case_study, name='create_case_study'),
+    path('create_post/general_post/', views.create_general_post, name='create_general_post'),
+    path('view_post/<str:post_id>', views.view_post, name='view_post'),
     path('oauth/', include('social_django.urls', namespace='social'))
 ]

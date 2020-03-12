@@ -1,0 +1,47 @@
+{% block general_post %}
+
+<div class="modal fade" id="generalPostModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 700px;">
+     <div class="modal-content" style="background-color: #F9F9F9;">
+       <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
+         <h5 class="modal-title" id="generalPostModalTitle">Add a case study</h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="generalPostModalCloseButton">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+         <div style="border-bottom: 1px solid #e4e6e9"></div>
+       <div class="modal-body" style="padding: 20px 30px 30px 30px;">
+         <div>
+           <form action="/create_post/general_post/" method="POST" id="general-post-form">
+               {% csrf_token %}
+               <div class="form-group">
+                <label for="generalPostTitle">Title</label>
+                <input name="title" type="text" class="form-control" id="generalPostTitle" required>
+               </div>
+               <div class="form-group">
+                <label for="generalPostDesc">Description</label>
+                   <textarea name="description" type="text" class="form-control" id="generalPostDesc" required></textarea>
+               </div>
+               <label for="generalPostTags">Tags</label>
+               <div class="form-group" id="generalPostTagsWrapper">
+                <div class="input-group">
+                    <input name="generalPostTags[]" type="text" class="form-control" id="generalPostTags" required>
+                    <span class="input-group-btn">
+                        <button class="btn btn-success btn-add plus-minus" type="button" id="generalPostTagsAddButton" >
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </span>
+                </div>
+                </div>
+               <div id="msgDivGeneralPost" role="alert"></div>
+               <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Create post</button>
+           </form>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+
+
+
+{% endblock %}

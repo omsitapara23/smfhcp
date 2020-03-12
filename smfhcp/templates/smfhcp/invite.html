@@ -1,0 +1,29 @@
+{% block invite %}
+
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered" role="document">
+     <div class="modal-content" style="background-color: #F9F9F9;">
+       <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
+         <h5 class="modal-title" id="exampleModalLongTitle">Invite doctor</h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="inviteModalCloseButton">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <div class="modal-body" style="padding: 20px 30px 30px 30px;">
+         <div>
+           <form action="/send_invite/"  method="POST" id="invite-form">
+               {% csrf_token %}
+               <div class="form-group">
+                 <label for="exampleInputEmail1">Email address</label>
+                 <input name="email_send_invite" type="email" required="true" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+               </div>
+               <div id="msgDiv" role="alert"></div>
+               <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Send Invite</button>
+           </form>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+
+{% endblock %}

@@ -1,7 +1,7 @@
-$('#createProfileForm').on('submit', function(event){
+$('#update-profile-form').on('submit', function(event){
     event.preventDefault();
-    console.log("create profile form submitted!")
-    createProfile();
+    console.log("update profile form submitted!")
+    updateProfile();
 });
 
 function csrfSafeMethod(method) {
@@ -9,46 +9,42 @@ function csrfSafeMethod(method) {
 }
 
 function checkValidity() {
-    $('#errorDiv').html('')
-    $('#errorDiv').removeClass("alert alert-danger")
-    var nameRegex = /^[a-zA-Z0-9_]+$/;
-    var validUsername = $("#exampleUsername1").val().match(nameRegex);
-    if(validUsername == null){
-        $('#errorDiv').addClass("alert alert-danger").html("Your user name is not valid. Only characters A-Z, a-z and '_' are acceptable.");
-        console.log("username wrong");
-        return false;
-    }
-    var password = $("#txtPassword").val();
-    var confirmPassword = $("#txtConfirmPassword").val();
-    if (password != confirmPassword) {
-        $('#errorDiv').addClass("alert alert-danger").html("Password and Confirm password do not match.");
-        console.log("password wrong");
+    $('#msgDivUpdateProfile').html('')
+    $('#msgDivUpdateProfile').removeClass("alert alert-danger")
+    if($('#txtPassword').val() == '' && $('#qualification').val() == '' && $('#profession').val() == '' &&
+    $('#institution').val() == '' && $('#researchInterests').val() == '' && $('#clinicalInterests').val() == '') {
+        $('#msgDivUpdateProfile').addClass("alert alert-danger").html("All fields are empty.");
+        console.log("All fields empty");
         return false;
     }
     return true;
 }
 
-function createProfile() {
+function updateProfile() {
     var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
     var qualifications = []
     var researchInterests = []
     var clinicalInterests = []
     $('input[name="qualification[]"]').each(function() {
-        qualifications.push($(this).val());
+        if ($(this).val() != '') {
+            qualifications.push($(this).val());
+        }
     });
     $('input[name="researchInterests[]"]').each(function() {
-        researchInterests.push($(this).val());
+        if ($(this).val() != '') {
+            researchInterests.push($(this).val());
+        }
     });
     $('input[name="clinicalInterests[]"]').each(function() {
-        clinicalInterests.push($(this).val());
+        if ($(this).val() != '') {
+            clinicalInterests.push($(this).val());
+        }
     });
     if(checkValidity()) {
         $.ajax({
-            url : "/create_profile/",
+            url : "/update_profile/",
             type : "POST",
-            data : { user_name : $('#exampleUsername1').val(), password : $('#txtPassword').val(),
-            email : $('#exampleInputEmail1').val(), otp: $('#otpField').val(), firstName : $('#firstName').val(),
-            lastName : $('#lastName').val(), qualification : JSON.stringify({ 'qualifications': qualifications }), profession : $('#profession').val(),
+            data : { password : $('#txtPassword').val(), qualification : JSON.stringify({ 'qualifications': qualifications }), profession : $('#profession').val(),
             institution : $('#institution').val(), researchInterests : JSON.stringify({ 'researchInterests': researchInterests }),
             clinicalInterests : JSON.stringify({ 'clinicalInterests': clinicalInterests }) },
             beforeSend: function(xhr, settings) {
@@ -60,12 +56,7 @@ function createProfile() {
                 if (json.redirect) {
                     window.location.href = json.redirect_url;
                 } else {
-                    console.log("Error shown.")
-                    $('#exampleUsername1').val('')
-                    $('#exampleInputEmail1').val('')
-                    $('#txtPassword').val('')
-                    $('#txtConfirmPassword').val('')
-                    $('#errorDiv').addClass("alert alert-danger").html(json.message)
+                    console.log('failed to redirect')
                 }
             },
             error : function(xhr,errmsg,err) {

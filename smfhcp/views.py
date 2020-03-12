@@ -11,6 +11,9 @@ import json
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+import datetime
+import re
+import pytz
 
 es = Elasticsearch(hosts=['192.168.116.82'])
 
@@ -316,14 +319,156 @@ def view_profile(request, user_name):
     return render(request, 'smfhcp/view_profile.html', context)
 
 
+def build_inline_string(data):
+    inline_string = ""
+    params = {}
+    if data.get('password') is not None:
+        inline_string += "ctx._source.password_hash = params.password_hash; "
+        params['password_hash'] = str(find_hash(data.get('password')))
+    if len(json.loads(data.get('qualification'))['qualifications']) > 0:
+        inline_string += "ctx._source.qualification.addAll(params.qualification); "
+        params['qualification'] = [s.strip() for s in json.loads(data.get('qualification'))['qualifications']]
+    if str(data.get('profession')) != '':
+        inline_string += "ctx._source.profession = params.profession; "
+        params['profession'] = str(data.get('profession'))
+    if str(data.get('institution')) != '':
+        inline_string += "ctx._source.institution = params.institution; "
+        params['institution'] = str(data.get('institution'))
+    if len(json.loads(data.get('researchInterests'))['researchInterests']) > 0:
+        inline_string += "ctx._source.research_interests.addAll(params.research_interests); "
+        params['research_interests'] = [s.strip() for s in json.loads(data.get('researchInterests'))['researchInterests']]
+    if len(json.loads(data.get('clinicalInterests'))['clinicalInterests']) > 0:
+        inline_string += "ctx._source.clinical_interests.addAll(params.clinical_interests); "
+        params['clinical_interests'] = [s.strip() for s in json.loads(data.get('clinicalInterests'))['clinicalInterests']]
+    return inline_string, params
+
+
+def update_document(inline_string, params, index_name, doc_id):
+    body = {
+        "script": {
+            "inline": inline_string,
+            "lang": "painless",
+            "params": params
+        }
+    }
+    es.update(index=index_name, id=doc_id, body=body)
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def update_profile(request):
-    print(request.POST.get('password'))
-    # find the fields from the post request
-    # update in database
-    # send the relevant error messages
-    # else redirect to /view_profile/{user_name}
-    return redirect('/view_profile/' + str(request.session['user_name']))
+    if request.method == 'POST':
+        inline_string, params = build_inline_string(request.POST)
+        update_document(inline_string, params, 'doctor', str(request.session['user_name']))
+        response_data = {
+            'redirect': True,
+            'redirect_url': '/view_profile/' + str(request.session['user_name'])
+        }
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+    else:
+        PermissionDenied()
+
+
+def index_post(request, data, post_type_case_study=True):
+    res = es.get(index='doctor', id=request.session['user_name'])
+    print(request.session['user_name'])
+    print(res)
+    body = {
+        "user_name": request.session['user_name'],
+        "full_name": res['_source']['full_name'],
+        "profession": res['_source']['profession'],
+        "institution": res['_source']['institution'],
+        "view_count": 1,
+        "title": data.get('title'),
+        "tags": [str(s).strip() for s in json.loads(data.get('tags'))['tags']],
+        "date": datetime.datetime.now(datetime.timezone.utc)
+    }
+    if post_type_case_study:
+        body['history'] = data.get('history')
+        body['diagnosis'] = data.get('diagnosis')
+        body['examination'] = data.get('examination')
+        body['prevention'] = data.get('prevention')
+        body['treatment'] = data.get('treatment')
+        body['remarks'] = data.get('remarks')
+    else:
+        body['description'] = data.get('description')
+    res = es.index(index='post', body=body)
+    return res['_id']
+
+
+def pretty_date(time):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    diff = now - time
+    second_diff = diff.seconds
+    day_diff = diff.days
+    if day_diff < 0:
+        return ''
+    elif day_diff == 0:
+        if second_diff < 10:
+            return "just now"
+        if second_diff < 60:
+            return str(second_diff) + " seconds ago"
+        if second_diff < 120:
+            return "a minute ago"
+        if second_diff < 3600:
+            return str(second_diff // 60) + " minutes ago"
+        if second_diff < 7200:
+            return "an hour ago"
+        if second_diff < 86400:
+            return str(second_diff // 3600) + " hours ago"
+    elif day_diff == 1:
+        return "Yesterday"
+    elif 30 <= day_diff < 365:
+        return "{} months ago".format(day_diff // 30)
+    elif 1 < day_diff < 30:
+        return "{} days ago".format(day_diff)
+    return "{} years ago".format(day_diff // 365)
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def view_post(request, post_id):
+    res = es.get(index='post', id=post_id)
+    string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", res['_source']['date'])
+    dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
+    dt = dt.astimezone(pytz.UTC)
+    res['_source']['date'] = pretty_date(dt)
+    return render(request, 'smfhcp/view_post.html', res['_source'])
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def create_case_study(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        post_id = index_post(request, data)
+        response_data = {
+            'redirect': True,
+            'redirect_url': '/view_post/' + str(post_id)
+        }
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+    else:
+        PermissionDenied()
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def create_general_post(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        post_id = index_post(request, data, False)
+        response_data = {
+            'redirect': True,
+            'redirect_url': '/view_post/' + str(post_id)
+        }
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+    else:
+        PermissionDenied()
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
