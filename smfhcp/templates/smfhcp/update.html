@@ -1,0 +1,70 @@
+{% block update %}
+
+<div class="modal fade" id="updateProfileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered" role="document">
+     <div class="modal-content" style="background-color: #F9F9F9;">
+       <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
+         <h5 class="modal-title" id="updateProfileModalTitle">Update Profile</h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="updateProfileModalCloseButton">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <div class="modal-body" style="padding: 20px 30px 30px 30px;">
+         <div>
+           <form action="/update_profile/"  method="POST" id="update-profile-form">
+               {% csrf_token %}
+               <div class="form-group">
+                <label for="txtPassword">Update Password</label>-
+                <input name="password" type="password" class="form-control" id="txtPassword">
+               </div>
+               <label for="qualification">Update Qualifications</label>
+               <div class="form-group" id="qualWrapper">
+                <div class="input-group">
+                    <input name="qualification[]" type="text" class="form-control" id="qualification">
+                    <span class="input-group-btn">
+                        <button class="btn btn-success btn-add plus-minus" type="button" id="qualAddButton">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+              <div class="form-group">
+                 <label for="profession">Update Profession</label>
+                 <input name="profession" type="text"  class="form-control" id="profession">
+              </div>
+              <div class="form-group">
+                 <label for="institution">Update Institution</label>
+                 <input name="institution" type="text" class="form-control" id="institution">
+              </div>
+               <label for="researchInterests">Update Research interests</label>
+               <div class="form-group" id="researchIntWrapper">
+               <div class="input-group">
+                    <input name="researchInterests[]" type="text" class="form-control" id="researchInterests">
+                    <span class="input-group-btn">
+                        <button class="btn btn-success btn-add plus-minus" type="button" id="researchIntAddButton">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+              <label for="clinicalInterests">Update Clinical interests</label>
+            <div class="form-group" id="clinicalIntWrapper">
+               <div class="input-group">
+                    <input name="clinicalInterests[]" type="text" class="form-control" id="clinicalInterests">
+                    <span class="input-group-btn">
+                        <button class="btn btn-success btn-add plus-minus" type="button" id="clinicalIntAddButton">
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+               <div id="msgDivUpdateProfile" role="alert"></div>
+               <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Update</button>
+           </form>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+
+{% endblock %}

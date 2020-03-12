@@ -26,12 +26,6 @@ $('#signUpFormCloseButton').on('click', function(event){
     $('#errorDiv').removeClass("alert alert-success alert-danger")
 });
 
-$('#update-profile-form').on('submit', function(event){
-    event.preventDefault();
-    console.log("update profile form submitted!")
-    updateProfile();
-});
-
 function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
@@ -144,45 +138,3 @@ function signUp() {
         });
     }
 }
-
-function updateProfile() {
-    var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-    $('#msgDivUpdateProfile').html('')
-    $('#msgDivUpdateProfile').removeClass("alert alert-danger")
-    $.ajax({
-        url : "/update_profile/",
-        type : "POST",
-        data : { password : $('#txtPassword').val(), qualification : $('#qualification').val(), profession : $('#profession').val(),
-        institution : $('#institution').val(), researchInterests : $('#researchInterests'),
-        clinicalInterests : $('#clinicalInterests') },
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        },
-        success : function(json) {
-//                if (json.redirect) {
-//                    window.location.href = json.redirect_url;
-//                } else {
-//                    console.log("Username or email already exists")
-//                    $('#exampleInputUsername1').val('')
-//                    $('#exampleInputEmail1').val('')
-//                    $('#txtPassword').val('')
-//                    $('#txtConfirmPassword').val('')
-//                    $('#errorDiv').addClass("alert alert-danger").html(json.message)
-//                }
-        },
-        error : function(xhr,errmsg,err) {
-            console.log(xhr.status + ": " + xhr.responseText);
-        }
-    });
-}
-
-
-
-
-
-
-
-
-

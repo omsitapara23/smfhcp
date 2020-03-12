@@ -10,7 +10,12 @@
 </div>
 
 {% else %}
-
+<style>
+    .plus-minus {
+        background-color: #3ecb87;
+        border: none;
+    }
+</style>
 
 <div class="container" style="padding-top: 40px !important; padding-bottom: 40px !important;">
   <div class="row border-0" style="background-color: white; margin: 40px 120px 40px 120px; border-radius: 8px;">
@@ -57,7 +62,7 @@
                 <div class="input-group">
                     <input name="qualification[]" type="text" required="true" class="form-control" id="qualification">
                     <span class="input-group-btn">
-                        <button class="btn btn-success btn-add" type="button" id="qualAddButton">
+                        <button class="btn btn-success btn-add plus-minus" type="button" id="qualAddButton">
                             <i class="fa fa-plus"></i>
                         </button>
                     </span>
@@ -76,7 +81,7 @@
                <div class="input-group">
                     <input name="researchInterests[]" type="text" required="true" class="form-control" id="researchInterests">
                     <span class="input-group-btn">
-                        <button class="btn btn-success btn-add" type="button" id="researchIntAddButton">
+                        <button class="btn btn-success btn-add plus-minus" type="button" id="researchIntAddButton">
                             <i class="fa fa-plus"></i>
                         </button>
                     </span>
@@ -87,7 +92,7 @@
                <div class="input-group">
                     <input name="clinicalInterests[]" type="text" required="true" class="form-control" id="clinicalInterests">
                     <span class="input-group-btn">
-                        <button class="btn btn-success btn-add" type="button" id="clinicalIntAddButton">
+                        <button class="btn btn-success btn-add plus-minus" type="button" id="clinicalIntAddButton">
                             <i class="fa fa-plus"></i>
                         </button>
                     </span>

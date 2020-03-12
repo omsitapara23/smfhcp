@@ -1,0 +1,66 @@
+{% block case_study %}
+
+<div class="modal fade" id="caseStudyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 700px;">
+     <div class="modal-content" style="background-color: #F9F9F9;">
+       <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
+         <h5 class="modal-title" id="caseStudyModalTitle">Add a case study</h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="caseStudyModalCloseButton">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+         <div style="border-bottom: 1px solid #e4e6e9"></div>
+       <div class="modal-body" style="padding: 20px 30px 30px 30px;">
+         <div>
+           <form action="/create_post/case_study/" method="POST" id="case-study-form">
+               {% csrf_token %}
+               <div class="form-group">
+                <label for="caseStudyTitle">Title</label>
+                <input name="title" type="text" class="form-control" id="caseStudyTitle" required>
+               </div>
+               <div class="form-group">
+                <label for="caseStudyHistory">History</label>
+                   <textarea name="history" class="form-control" id="caseStudyHistory" rows="3" required></textarea>
+               </div>
+               <div class="form-group">
+                <label for="caseStudyExamination">Examination</label>
+                   <textarea name="examination" class="form-control" id="caseStudyExamination" rows="3" required></textarea>
+               </div>
+               <div class="form-group">
+                <label for="caseStudyDiagnosis">Diagnosis</label>
+                   <textarea name="diagnosis" class="form-control" id="caseStudyDiagnosis" rows="3" required></textarea>
+               </div>
+               <div class="form-group">
+                <label for="caseStudyTreatment">Treatment</label>
+                   <textarea name="treatment" class="form-control" id="caseStudyTreatment" rows="3" required></textarea>
+               </div>
+               <div class="form-group">
+                <label for="caseStudyPrevention">Prevention</label>
+                   <textarea name="prevention" class="form-control" id="caseStudyPrevention" rows="3" required></textarea>
+               </div>
+               <div class="form-group">
+                <label for="caseStudyRemarks">Remarks</label>
+                   <textarea name="remarks" class="form-control" id="caseStudyRemarks" rows="3" required></textarea>
+               </div>
+               <label for="caseStudyTags">Tags</label>
+               <div class="form-group" id="caseStudyTagsWrapper">
+                <div class="input-group">
+                    <input name="tags[]" type="text" class="form-control" id="caseStudyTags" required>
+                    <span class="input-group-btn">
+                        <button class="btn btn-success btn-add plus-minus" type="button" id="caseStudyTagsAddButton" >
+                            <i class="fa fa-plus"></i>
+                        </button>
+                    </span>
+                </div>
+                </div>
+               <div id="msgDivCaseStudy" role="alert"></div>
+               <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 30px; border-radius: 40px !important;">Create post</button>
+           </form>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+
+
+{% endblock %}
