@@ -1,8 +1,61 @@
-<h5>{{ title }}</h5>
-<h5>{{ date }}</h5>
-<h5>{{ tags }}</h5>
-<h5>{{ title }}</h5>
-<h5>{{ title }}</h5>
-<h5>{{ title }}</h5>
+{% extends 'smfhcp/base.html' %}
 
+{% load static %}
 
+{% block content %}
+
+{% autoescape off %}
+
+{% if request.session.is_authenticated %}
+
+<div class="d-flex justify-content-center">
+    <div class="container" style="margin-top: 180px; max-width: 800px; margin-bottom: 300px;">
+        <div style="margin-bottom: 15px;">
+            {% for tag in tags %}
+                <div class="text-muted" style="background-color: #F7F7F7; padding: 5px 15px 5px 15px; margin-right: 12px; display: inline-block; font-size: 14px; border-radius: 3px;">{{ tag }}</div>
+            {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+                <h2>{{ title }}</h2>
+                <p style="margin-bottom: 0px;"><a href="/view_profile/{{  user_name }}" style="color: black">{{ full_name }}</a> | <span class="text-muted">{{ profession }}, {{ institution }}</span><br>
+                <small class="text-muted">Posted {{ date }}</small>
+<!--                <small class="text-muted">Views: {{ view_count }}</small>-->
+                </p>
+            </div>
+            {% if user_name != request.session.user_name %}
+            <div class="col-md-2" style="padding-top: 20px;">
+                <a href="{{ user_name }}" id="followLink">
+                    <div data-toggle="tooltip" data-placement="top" title="{% if isFollowing %}Unfollow {% else %}Follow {% endif %}{{ user_name }}" id="followDiv" style="display: inline-block; padding-left: 9px; padding-top: 5px; background-color: #F7F7F7; border-radius: 20px; width: 40px; height: 40px; border: 1px solid #eaeaea">
+                        <image src="/static/images/{% if isFollowing %}unfollow{% else %}follow{% endif %}.png" style="width: 20px;" id="followImage"></image>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        <hr>
+        {% if description %}
+        <h3>Description</h3>
+        <p>{{ description }}</p>
+        {% else %}
+        <h3>History</h3>
+        <p>{{ history }}</p>
+        <h3>Examination</h3>
+        <p>{{ examination }}</p>
+        <h3>Diagnosis</h3>
+        <p>{{ diagnosis }}</p>
+        <h3>Treatment</h3>
+        <p>{{ treatment }}</p>
+        <h3>Prevention</h3>
+        <p>{{ prevention }}</p>
+        <h3>Remarks</h3>
+        <p>{{ remarks }}</p>
+        {% endif %}
+        <hr>
+    </div>
+</div>
+{% endif %}
+
+{% endautoescape %}
+
+{% endblock %}

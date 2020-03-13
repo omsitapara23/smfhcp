@@ -74,6 +74,9 @@ TEMPLATES = [
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
             ],
+            'libraries':{
+                'smfhcp_extras': 'smfhcpApp.templatetags.smfhcp_extras',
+            }
         },
     },
 ]

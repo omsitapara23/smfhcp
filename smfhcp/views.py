@@ -14,6 +14,7 @@ from django.contrib import messages
 import datetime
 import re
 import pytz
+import textile
 
 es = Elasticsearch(hosts=['192.168.116.82'])
 
@@ -42,11 +43,15 @@ def index(request):
     request.session['email'] = request.user.email
     request.session['is_authenticated'] = True
     request.session['is_doctor'] = False
-    body = {
-        "user_name": request.user.username,
-        "email": request.user.email
-    }
-    index_user(body)
+    try:
+        es.get(index='general-user', id=request.user.username)
+    except elasticsearch.NotFoundError:
+        body = {
+            "user_name": request.user.username,
+            "email": request.user.email,
+            "follow_list": []
+        }
+        index_user(body)
     return redirect('/')
 
 
@@ -99,7 +104,8 @@ def signup_email(request):
         body = {
             "user_name": data.get('user_name'),
             "email": data.get('email'),
-            "password_hash": find_hash(data.get('password'))
+            "password_hash": find_hash(data.get('password')),
+            "follow_list": []
         }
         if index_user(body) is False:
             response_data = {
@@ -252,7 +258,11 @@ def index_doctor(request, res, data):
         "research_interests": [s.strip() for s in json.loads(data.get('researchInterests'))['researchInterests']],
         "profession": data.get('profession'),
         "institution": data.get('institution'),
-        "clinical_interests": [s.strip() for s in json.loads(data.get('clinicalInterests'))['clinicalInterests']]
+        "clinical_interests": [s.strip() for s in json.loads(data.get('clinicalInterests'))['clinicalInterests']],
+        "follow_list": [],
+        "follower_count": 0,
+        "post_count": 0,
+        "posts": []
     }
     es.index(index='doctor', id=body['user_name'], body=body)
 
@@ -305,7 +315,23 @@ def create_profile(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def view_profile(request, user_name):
     res_doctor = es.get(index=['doctor'], id=user_name)
-    print(res_doctor)
+    query_body = {
+        "query": {
+            "match": {
+                "user_name": user_name
+            }
+        }
+    }
+    posts = True
+    res = es.search(index=['post'], body=query_body)
+    post_list = res['hits']['hits']
+    for post in post_list:
+        string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", post['_source']['date'])
+        dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
+        dt = dt.astimezone(pytz.UTC)
+        post['_source']['date'] = pretty_date(dt)
+    if res['hits']['total']['value'] == 0:
+        posts = False
     context = {
         'user_name': res_doctor['_source']['user_name'],
         'full_name': res_doctor['_source']['full_name'],
@@ -314,7 +340,12 @@ def view_profile(request, user_name):
         'research_interests': res_doctor['_source']['research_interests'],
         'profession': res_doctor['_source']['profession'],
         'institution': res_doctor['_source']['institution'],
-        'clinical_interests': res_doctor['_source']['clinical_interests']
+        'clinical_interests': res_doctor['_source']['clinical_interests'],
+        'following_count': len(res_doctor['_source']['follow_list']),
+        'post_count': res_doctor['_source']['post_count'],
+        'follower_count': res_doctor['_source']['follower_count'],
+        'posts_available': posts,
+        'posts': post_list
     }
     return render(request, 'smfhcp/view_profile.html', context)
 
@@ -386,14 +417,14 @@ def index_post(request, data, post_type_case_study=True):
         "date": datetime.datetime.now(datetime.timezone.utc)
     }
     if post_type_case_study:
-        body['history'] = data.get('history')
-        body['diagnosis'] = data.get('diagnosis')
-        body['examination'] = data.get('examination')
-        body['prevention'] = data.get('prevention')
-        body['treatment'] = data.get('treatment')
-        body['remarks'] = data.get('remarks')
+        body['history'] = textile.textile(data.get('history'))
+        body['diagnosis'] = textile.textile(data.get('diagnosis'))
+        body['examination'] = textile.textile(data.get('examination'))
+        body['prevention'] = textile.textile(data.get('prevention'))
+        body['treatment'] = textile.textile(data.get('treatment'))
+        body['remarks'] = textile.textile(data.get('remarks'))
     else:
-        body['description'] = data.get('description')
+        body['description'] = textile.textile(data.get('description'))
     res = es.index(index='post', body=body)
     return res['_id']
 
@@ -427,6 +458,18 @@ def pretty_date(time):
     return "{} years ago".format(day_diff // 365)
 
 
+def find_if_follows(request, doctor_user_name):
+    if request.session['is_doctor']:
+        res = es.get(index='doctor', id=request.session['user_name'])
+        if "follow_list" in res["_source"] and str(doctor_user_name) in res["_source"]["follow_list"]:
+            return True
+    else:
+        res = es.get(index='general-user', id=request.session['user_name'])
+        if "follow_list" in res["_source"] and str(doctor_user_name) in res["_source"]["follow_list"]:
+            return True
+    return False
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def view_post(request, post_id):
     res = es.get(index='post', id=post_id)
@@ -434,7 +477,35 @@ def view_post(request, post_id):
     dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
     dt = dt.astimezone(pytz.UTC)
     res['_source']['date'] = pretty_date(dt)
+    res["_source"]['isFollowing'] = find_if_follows(request, res['_source']['user_name'])
+    update_post_view_count(post_id)
     return render(request, 'smfhcp/view_post.html', res['_source'])
+
+
+def update_post_count(request):
+    body = {
+        "script": {
+            "source": "ctx._source.post_count += params.count",
+            "lang": "painless",
+            "params": {
+                "count": 1
+            }
+        }
+    }
+    es.update(index='doctor', id=request.session['user_name'], body=body)
+
+
+def update_post_view_count(post_id):
+    body = {
+        "script": {
+            "source": "ctx._source.view_count += params.count",
+            "lang": "painless",
+            "params": {
+                "count": 1
+            }
+        }
+    }
+    es.update(index='post', id=post_id, body=body)
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -442,6 +513,7 @@ def create_case_study(request):
     if request.method == 'POST':
         data = request.POST.copy()
         post_id = index_post(request, data)
+        update_post_count(request)
         response_data = {
             'redirect': True,
             'redirect_url': '/view_post/' + str(post_id)
@@ -459,12 +531,69 @@ def create_general_post(request):
     if request.method == 'POST':
         data = request.POST.copy()
         post_id = index_post(request, data, False)
+        update_post_count(request)
         response_data = {
             'redirect': True,
             'redirect_url': '/view_post/' + str(post_id)
         }
         return HttpResponse(
             json.dumps(response_data),
+            content_type="application/json"
+        )
+    else:
+        PermissionDenied()
+
+
+def update_follow_count(data):
+    body = {
+        "script": {
+            "lang": "painless",
+            "params": {
+                "count": 1
+            }
+        }
+    }
+    if data.get('follow') == "true":
+        body['script']['source'] = "ctx._source.follower_count += params.count"
+    else:
+        body['script']['source'] = "if(ctx._source.follower_count > 0) {ctx._source.follower_count -= params.count}"
+    es.update(index='doctor', id=data.get('doctor_name'), body=body)
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def follow_or_unfollow(request):
+    if request.method == 'POST':
+        data = request.POST.copy()
+        body = {}
+        if data.get('follow') == "true":
+            print("here")
+            body = {
+                "script": {
+                    "inline": "ctx._source.follow_list.add(params.doctor_user_name);",
+                    "lang": "painless",
+                    "params": {
+                        "doctor_user_name": data.get('doctor_name')
+                    }
+                }
+            }
+            print("follow")
+        else:
+            body = {
+                "script": {
+                    "source": "ctx._source.follow_list.remove(ctx._source.follow_list.indexOf(params.doctor_user_name))",
+                    "lang": "painless",
+                    "params": {
+                        "doctor_user_name": data.get('doctor_name')
+                    }
+                }
+            }
+        if request.session['is_doctor']:
+            es.update(index='doctor', id=request.session['user_name'], body=body)
+        else:
+            es.update(index='general-user', id=request.session['user_name'], body=body)
+        update_follow_count(data)
+        return HttpResponse(
+            json.dumps({}),
             content_type="application/json"
         )
     else:
