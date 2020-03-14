@@ -314,40 +314,45 @@ def create_profile(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def view_profile(request, user_name):
-    res_doctor = es.get(index=['doctor'], id=user_name)
-    query_body = {
-        "query": {
-            "match": {
-                "user_name": user_name
+    if request.session['is_authenticated']:
+        res_doctor = es.get(index=['doctor'], id=user_name)
+        query_body = {
+            "query": {
+                "match": {
+                    "user_name": user_name
+                }
             }
         }
-    }
-    posts = True
-    res = es.search(index=['post'], body=query_body)
-    post_list = res['hits']['hits']
-    for post in post_list:
-        string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", post['_source']['date'])
-        dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
-        dt = dt.astimezone(pytz.UTC)
-        post['_source']['date'] = pretty_date(dt)
-    if res['hits']['total']['value'] == 0:
-        posts = False
-    context = {
-        'user_name': res_doctor['_source']['user_name'],
-        'full_name': res_doctor['_source']['full_name'],
-        'email': res_doctor['_source']['email'],
-        'qualification': res_doctor['_source']['qualification'],
-        'research_interests': res_doctor['_source']['research_interests'],
-        'profession': res_doctor['_source']['profession'],
-        'institution': res_doctor['_source']['institution'],
-        'clinical_interests': res_doctor['_source']['clinical_interests'],
-        'following_count': len(res_doctor['_source']['follow_list']),
-        'post_count': res_doctor['_source']['post_count'],
-        'follower_count': res_doctor['_source']['follower_count'],
-        'posts_available': posts,
-        'posts': post_list
-    }
-    return render(request, 'smfhcp/view_profile.html', context)
+        posts = True
+        res = es.search(index=['post'], body=query_body)
+        post_list = res['hits']['hits']
+        for post in post_list:
+            string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", post['_source']['date'])
+            dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
+            dt = dt.astimezone(pytz.UTC)
+            post['_source']['date'] = pretty_date(dt)
+        if res['hits']['total']['value'] == 0:
+            posts = False
+        is_following = find_if_follows(request, user_name)
+        context = {
+            'user_name': res_doctor['_source']['user_name'],
+            'full_name': res_doctor['_source']['full_name'],
+            'email': res_doctor['_source']['email'],
+            'qualification': res_doctor['_source']['qualification'],
+            'research_interests': res_doctor['_source']['research_interests'],
+            'profession': res_doctor['_source']['profession'],
+            'institution': res_doctor['_source']['institution'],
+            'clinical_interests': res_doctor['_source']['clinical_interests'],
+            'following_count': len(res_doctor['_source']['follow_list']),
+            'post_count': res_doctor['_source']['post_count'],
+            'follower_count': res_doctor['_source']['follower_count'],
+            'posts_available': posts,
+            'posts': post_list,
+            'isFollowing': is_following
+        }
+        return render(request, 'smfhcp/view_profile.html', context)
+    else:
+        return redirect("/")
 
 
 def build_inline_string(data):
@@ -414,7 +419,8 @@ def index_post(request, data, post_type_case_study=True):
         "view_count": 1,
         "title": data.get('title'),
         "tags": [str(s).strip() for s in json.loads(data.get('tags'))['tags']],
-        "date": datetime.datetime.now(datetime.timezone.utc)
+        "date": datetime.datetime.now(datetime.timezone.utc),
+        "comments": []
     }
     if post_type_case_study:
         body['history'] = textile.textile(data.get('history'))
@@ -472,14 +478,18 @@ def find_if_follows(request, doctor_user_name):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def view_post(request, post_id):
-    res = es.get(index='post', id=post_id)
-    string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", res['_source']['date'])
-    dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
-    dt = dt.astimezone(pytz.UTC)
-    res['_source']['date'] = pretty_date(dt)
-    res["_source"]['isFollowing'] = find_if_follows(request, res['_source']['user_name'])
-    update_post_view_count(post_id)
-    return render(request, 'smfhcp/view_post.html', res['_source'])
+    if request.session['is_authenticated']:
+        res = es.get(index='post', id=post_id)
+        string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", res['_source']['date'])
+        dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
+        dt = dt.astimezone(pytz.UTC)
+        res['_source']['date'] = pretty_date(dt)
+        res["_source"]['isFollowing'] = find_if_follows(request, res['_source']['user_name'])
+        res["_source"]['post_id'] = post_id
+        update_post_view_count(post_id)
+        return render(request, 'smfhcp/view_post.html', res['_source'])
+    else:
+        return redirect("/")
 
 
 def update_post_count(request):
@@ -592,6 +602,31 @@ def follow_or_unfollow(request):
         else:
             es.update(index='general-user', id=request.session['user_name'], body=body)
         update_follow_count(data)
+        return HttpResponse(
+            json.dumps({}),
+            content_type="application/json"
+        )
+    else:
+        PermissionDenied()
+
+
+def add_comment(request):
+    if request.method == 'POST':
+        body = {
+            "script": {
+                "source": "ctx._source.comments.add(params.new_comment)",
+                "lang": "painless",
+                "params": {
+                    "new_comment": {
+                        "comment_body": request.POST.get('comment_text'),
+                        "user_name": request.POST.get('user_name'),
+                        "replies": [],
+                        "comment_id": find_hash(datetime.datetime.now())
+                    }
+                }
+            }
+        }
+        es.update(index='post', id=request.POST.get('post_id'), body=body)
         return HttpResponse(
             json.dumps({}),
             content_type="application/json"

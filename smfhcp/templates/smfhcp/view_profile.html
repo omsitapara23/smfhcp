@@ -7,8 +7,21 @@
 
 {% if request.session.is_authenticated %}
 <div class="container" style="padding: 100px 200px 100px 200px; margin-top: 50px;">
-    <h2>{{ full_name }}</h2>
-    <p class="text-left">{{ profession }}, {{ institution }}</p>
+    <div class="row">
+        <div class="col-md-10">
+            <h2>{{ full_name }}</h2>
+            <p class="text-left">{{ profession }}, {{ institution }}</p>
+        </div>
+        {% if user_name != request.session.user_name %}
+        <div class="col-md-2" style="padding-top: 20px;">
+            <a href="{{ user_name }}" id="followLink">
+                <div data-toggle="tooltip" data-placement="top" title="{% if isFollowing %}Unfollow {% else %}Follow {% endif %}{{ user_name }}" id="followDiv" style="display: inline-block; padding-left: 9px; padding-top: 5px; background-color: #F7F7F7; border-radius: 20px; width: 40px; height: 40px; border: 1px solid #eaeaea">
+                    <image src="/static/images/{% if isFollowing %}unfollow{% else %}follow{% endif %}.png" style="width: 20px;" id="followImage"></image>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+    </div>
     <div class="row">
         <div class="col-md-8">
             <h5>Research Interests</h5>
@@ -70,15 +83,6 @@
                 <!--                <small class="text-muted">Views: {{ view_count }}</small>-->
                                 </p>
                             </div>
-                            {% if values.user_name != request.session.user_name %}
-                            <div class="col-md-2" style="padding-top: 20px;">
-                                <a href="{{ values.user_name }}" id="followLink">
-                                    <div data-toggle="tooltip" data-placement="top" title="{% if isFollowing %}Unfollow {% else %}Follow {% endif %}{{ values.user_name }}" id="followDiv" style="display: inline-block; padding-left: 9px; padding-top: 5px; background-color: #F7F7F7; border-radius: 20px; width: 40px; height: 40px; border: 1px solid #eaeaea">
-                                        <image src="/static/images/{% if isFollowing %}unfollow{% else %}follow{% endif %}.png" style="width: 20px;" id="followImage"></image>
-                                    </div>
-                                </a>
-                            </div>
-                            {% endif %}
                         </div>
                         <hr>
                         {% if values.description %}
