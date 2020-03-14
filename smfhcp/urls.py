@@ -19,5 +19,6 @@ urlpatterns = [
     path('create_post/general_post/', views.create_general_post, name='create_general_post'),
     path('view_post/<str:post_id>', views.view_post, name='view_post'),
     path('follow_or_unfollow/', views.follow_or_unfollow, name='follow_or_unfollow'),
+    path('add_comment/', views.add_comment, name='add_comment'),
     path('oauth/', include('social_django.urls', namespace='social'))
 ]

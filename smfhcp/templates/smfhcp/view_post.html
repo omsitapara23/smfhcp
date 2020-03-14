@@ -52,8 +52,34 @@
         <p>{{ remarks }}</p>
         {% endif %}
         <hr>
+        <h2>Comments</h2>
+        <div>
+            <div id="addCommentWrapper">
+                <form method="POST" id="comment-form" about="{{ request.session.user_name }}/{{ post_id }}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="commentText">Add a comment</label>
+                       <textarea name="commentText" class="form-control" id="commentText" rows="2" required></textarea>
+                   </div>
+                    <div align="right">
+                        <button type="submit" id="addCommentButton" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 10px; border-radius: 20px !important; max-width: 150px;">Post comment</button>
+                    </div>
+                </form>
+            </div>
+            <div id="showCommentsWrapper" style="margin-top: 20px;">
+                {% for comment in comments %}
+                    <div style="margin-bottom: 10px;">
+                        <p style="margin-bottom: 0px;"><b>{{ comment.user_name }}</b></p>
+                        <div style="border: 0px solid #ced4da; border-radius: .25rem; padding: .375rem .75rem; background-color: #F7F7F7;">
+                            <p style="color: #495057; margin-bottom: 0px;">{{ comment.comment_body }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
+
 {% endif %}
 
 {% endautoescape %}
