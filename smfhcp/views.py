@@ -476,16 +476,34 @@ def find_if_follows(request, doctor_user_name):
     return False
 
 
+def create_time_from_utc_string(utc_string):
+    string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", utc_string)
+    dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
+    return dt.astimezone(pytz.UTC)
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def view_post(request, post_id):
     if request.session['is_authenticated']:
-        res = es.get(index='post', id=post_id)
-        string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", res['_source']['date'])
-        dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
-        dt = dt.astimezone(pytz.UTC)
+        res = {}
+        try:
+            res = es.get(index='post', id=post_id)
+        except elasticsearch.NotFoundError:
+            context = {
+                'found': False
+            }
+            return render(request, 'smfhcp/view_post.html', context)
+        dt = create_time_from_utc_string(res['_source']['date'])
+        res['_source']['found'] = True
         res['_source']['date'] = pretty_date(dt)
         res["_source"]['isFollowing'] = find_if_follows(request, res['_source']['user_name'])
         res["_source"]['post_id'] = post_id
+        for i, comment in enumerate(res['_source']['comments']):
+            dt = create_time_from_utc_string(comment['date'])
+            res['_source']['comments'][i]['date'] = pretty_date(dt)
+            for j, reply in enumerate(res['_source']['comments'][i]['replies']):
+                dt = create_time_from_utc_string(reply['date'])
+                res['_source']['comments'][i]['replies'][j]['date'] = pretty_date(dt)
         update_post_view_count(post_id)
         return render(request, 'smfhcp/view_post.html', res['_source'])
     else:
@@ -612,6 +630,7 @@ def follow_or_unfollow(request):
 
 def add_comment(request):
     if request.method == 'POST':
+        comment_id = find_hash(datetime.datetime.now())
         body = {
             "script": {
                 "source": "ctx._source.comments.add(params.new_comment)",
@@ -621,7 +640,37 @@ def add_comment(request):
                         "comment_body": request.POST.get('comment_text'),
                         "user_name": request.POST.get('user_name'),
                         "replies": [],
-                        "comment_id": find_hash(datetime.datetime.now())
+                        "comment_id": comment_id,
+                        "date": datetime.datetime.now(datetime.timezone.utc)
+                    }
+                }
+            }
+        }
+        es.update(index='post', id=request.POST.get('post_id'), body=body)
+        response = {
+            'comment_id': comment_id
+        }
+        return HttpResponse(
+            json.dumps(response),
+            content_type="application/json"
+        )
+    else:
+        PermissionDenied()
+
+
+def add_reply(request):
+    if request.method == 'POST':
+        print(request.POST)
+        body = {
+            "script": {
+                "source": "for(int i=0; i < ctx._source.comments.size(); i++){ if(ctx._source.comments[i].comment_id == params.comment_id){ ctx._source.comments[i].replies.add(params.reply); } }",
+                "lang": "painless",
+                "params": {
+                    "comment_id": request.POST.get('comment_id'),
+                    "reply": {
+                        "user_name": request.POST.get('user_name'),
+                        "reply_body": request.POST.get('reply_text'),
+                        "date": datetime.datetime.now(datetime.timezone.utc)
                     }
                 }
             }
