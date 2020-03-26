@@ -16,7 +16,7 @@ import re
 import pytz
 import textile
 
-es = Elasticsearch(hosts=['192.168.116.82'])
+es = Elasticsearch(hosts=['localhost'])
 
 
 def random_with_n_digits(n):

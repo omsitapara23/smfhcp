@@ -104,5 +104,9 @@ $(document).ready(function() {
 		e.preventDefault();
 		 $(this).parents('.input-group:first').remove();
 	})
+    $('#updateProfileModalCloseButton').on('click', function(event){
+        $('#msgDivUpdateProfile').html('');
+        $('#msgDivUpdateProfile').removeClass("alert alert-danger")
+    });
 }
 );
