@@ -10,7 +10,8 @@
          </button>
        </div>
        <div class="modal-body" style="padding: 20px 30px 30px 30px;">
-         <div>
+           <small class="text-muted">You can use markup language <a href="https://textile-lang.com/" target="_blank">textile</a> to document your post better.</small>
+           <div>
            <form action="/create_post/general_post/" method="POST" id="general-post-form">
                {% csrf_token %}
                <div class="form-group">

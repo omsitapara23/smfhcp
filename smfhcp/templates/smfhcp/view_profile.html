@@ -87,12 +87,12 @@
                         <hr>
                         {% if values.description %}
                         <h3>Description</h3>
-                        <p>{{ values.description|safe|truncatewords_html:"50" }} <small class="text-muted"><a href="/view_post/{{ p|get:'_id' }}" style="color: #3f3f3f;">Read More</a></small></p>
+                        <p>{{ values.description|safe|truncatewords_html:"50" }} <small class="text-muted"><a href="/view_post/{{ p|get:'_id' }}" target="_blank" style="color: #3f3f3f;">Read More</a></small></p>
                         {% else %}
                         <h3>History</h3>
                         <p>{{ values.history }}</p>
                         <h3>Examination</h3>
-                        <p>{{ values.examination|safe|truncatewords_html:"50" }} <small class="text-muted"><a href="/view_post/{{ p|get:'_id' }}" style="color: #3f3f3f;">Read More</a></small></p>
+                        <p>{{ values.examination|safe|truncatewords_html:"50" }} <small class="text-muted"><a href="/view_post/{{ p|get:'_id' }}" target="_blank" style="color: #3f3f3f;">Read More</a></small></p>
                         {% endif %}
                         <hr>
                     </div>

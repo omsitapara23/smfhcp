@@ -21,5 +21,7 @@ urlpatterns = [
     path('follow_or_unfollow/', views.follow_or_unfollow, name='follow_or_unfollow'),
     path('add_comment/', views.add_comment, name='add_comment'),
     path('add_reply/', views.add_reply, name='add_reply'),
+    path('forgot_password/', views.forgot_password, name='forgot_password'),
+    path('reset_password/<str:user_name>/<str:otp>', views.reset_password, name='reset_password'),
     path('oauth/', include('social_django.urls', namespace='social'))
 ]
