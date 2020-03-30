@@ -17,7 +17,7 @@ import pytz
 import textile
 from django.template.loader import render_to_string
 
-es = Elasticsearch(hosts=['localhost'])
+es = Elasticsearch(hosts=['https://dxqik4ewu7:kiao9bklju@smfhcp-testing-9703004755.eu-central-1.bonsaisearch.net:443'])
 
 
 def random_with_n_digits(n):
@@ -27,7 +27,41 @@ def random_with_n_digits(n):
 
 
 def base_view(request):
-    return render(request, 'smfhcp/home.html')
+    context = {
+        'posts_available': False
+    }
+    if 'is_authenticated' in request.session and request.session['is_authenticated']:
+        res_user, is_doctor = find_user(request.session['user_name'])
+        print(res_user)
+        follow_list = res_user['follow_list']
+        post_list = []
+        posts = True
+        for user in follow_list:
+            query_body = {
+                "query": {
+                    "match": {
+                        "user_name": user
+                    }
+                }
+            }
+            res = es.search(index=['post'], body=query_body)
+            post_list_temp = res['hits']['hits']
+            print(post_list_temp)
+            for post in post_list_temp:
+                string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", post['_source']['date'])
+                dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
+                dt = dt.astimezone(pytz.UTC)
+                post['_source']['date'] = pretty_date(dt)
+            if res['hits']['total']['value'] == 0:
+                posts = False
+            post_list += post_list_temp
+        print(post_list)
+        context = {
+            'post_count': len(post_list),
+            'posts_available': posts,
+            'posts': post_list
+        }
+    return render(request, 'smfhcp/home.html', context)
 
 
 def handler404(request, exception):
