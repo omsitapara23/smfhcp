@@ -39,6 +39,14 @@ def handler500(request):
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def login_view(request):
+    if 'is_authenticated' in request.session and request.session['is_authenticated']:
+        return redirect('/')
+    else:
+        return render(request, 'registrations/login.html')
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def index(request):
     request.session['user_name'] = request.user.username
     request.session['email'] = request.user.email
@@ -433,7 +441,7 @@ def update_profile(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def index_post(request, data, post_type_case_study=True):
@@ -580,7 +588,7 @@ def create_case_study(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -598,7 +606,7 @@ def create_general_post(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def update_follow_count(data):
@@ -654,7 +662,7 @@ def follow_or_unfollow(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def add_comment(request):
@@ -684,7 +692,7 @@ def add_comment(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def add_reply(request):
@@ -710,7 +718,7 @@ def add_reply(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def send_password_reset_email(res, token):
@@ -783,7 +791,7 @@ def forgot_password(request):
                 content_type="application/json"
             )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -822,6 +830,36 @@ def reset_password(request, user_name, otp):
         request.session['email'] = res['email']
         request.session['is_authenticated'] = True
         return redirect('/')
+
+
+def get_follow_list(request):
+    if request.is_ajax():
+        if 'is_authenticated' in request.session and request.session['is_authenticated']:
+            me = {
+                'id': request.session['user_name'],
+                'name': request.session['user_name']
+            }
+            follow_list = []
+            res = es.get(index="doctor", id=request.session['user_name'])
+            following = res['_source']['follow_list']
+            for user in following:
+                talk_body = {
+                    'id': user,
+                    'name': user
+                }
+                follow_list.append(talk_body)
+            response = {
+                'me': me,
+                'follow_list': follow_list
+            }
+            return HttpResponse(
+                json.dumps(response),
+                content_type="application/json"
+            )
+        else:
+            raise PermissionDenied()
+    else:
+        raise PermissionDenied()
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

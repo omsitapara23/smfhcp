@@ -56,6 +56,9 @@
         {{ request.session.user_name }}
         </a>
       {% endif %}
+      {% if request.session.is_doctor %}
+        <button class="btn btn-outline-dark" style="margin-right: 20px;" type="button" data-toggle="modal" data-target="#chatModal">Chat</button>
+      {% endif %}
       <a class="btn btn-outline-dark my-2 my-sm-0" href="{% url 'logout' %}" type="submit">Logout</a>
     </form>
   </div>
@@ -69,6 +72,8 @@
 {% include 'smfhcp/case_study.html'%}
 
 {% include 'smfhcp/general_post.html'%}
+
+{% include 'smfhcp/chat.html'%}
 
 <script src="{% static 'js/invite.js' %}"></script>
 <script src="{% static 'js/updateProfile.js' %}"></script>
