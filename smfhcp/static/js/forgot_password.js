@@ -19,6 +19,7 @@ function forgotPassword() {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
+            $('#forgotPasswordModalErrorDiv').removeClass("alert-success alert alert-danger").html("<img src=\"/static/images/loading.gif\" style=\"width: 35px; height: 35px;\">")
         },
         success : function(json) {
             $('#forgotPasswordModalUsername1').val('');

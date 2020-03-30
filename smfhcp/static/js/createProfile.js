@@ -42,19 +42,31 @@ function createProfile() {
     $('input[name="clinicalInterests[]"]').each(function() {
         clinicalInterests.push($(this).val());
     });
+    var formData = new FormData();
+    formData.append('user_name', $('#exampleUsername1').val())
+    formData.append('password', $('#txtPassword').val())
+    formData.append('email', $('#exampleInputEmail1').val())
+    formData.append('otp', $('#otpField').val())
+    formData.append('firstName', $('#firstName').val())
+    formData.append('lastName', $('#lastName').val())
+    formData.append('qualification', JSON.stringify({ 'qualifications': qualifications }))
+    formData.append('profession', $('#profession').val())
+    formData.append('institution', $('#institution').val())
+    formData.append('researchInterests', JSON.stringify({ 'researchInterests': researchInterests }))
+    formData.append('clinicalInterests', JSON.stringify({ 'clinicalInterests': clinicalInterests }))
+    formData.append('profilePicture', $('#upload')[0].files[0])
     if(checkValidity()) {
         $.ajax({
             url : "/create_profile/",
             type : "POST",
-            data : { user_name : $('#exampleUsername1').val(), password : $('#txtPassword').val(),
-            email : $('#exampleInputEmail1').val(), otp: $('#otpField').val(), firstName : $('#firstName').val(),
-            lastName : $('#lastName').val(), qualification : JSON.stringify({ 'qualifications': qualifications }), profession : $('#profession').val(),
-            institution : $('#institution').val(), researchInterests : JSON.stringify({ 'researchInterests': researchInterests }),
-            clinicalInterests : JSON.stringify({ 'clinicalInterests': clinicalInterests }) },
+            data : formData,
+            processData: false,
+            contentType: false,
             beforeSend: function(xhr, settings) {
                 if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
                 }
+                $('#errorDiv').removeClass("alert-success alert alert-danger").html("<img src=\"/static/images/loading.gif\" style=\"width: 35px; height: 35px;\">")
             },
             success : function(json) {
                 if (json.redirect) {

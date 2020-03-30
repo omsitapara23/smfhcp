@@ -212,7 +212,7 @@ def send_invite(request):
                 "email": email_id,
                 "token": token
             }
-            es.index(index='doctor-activation', id=email_id, body=body)
+            # es.index(index='doctor-activation', id=email_id, body=body)
             response_data = {
                 "message": 'Invitation sent successfully.',
                 "success": True
@@ -249,7 +249,25 @@ def doctor_signup(request, otp):
     return render(request, 'smfhcp/doctor_create_profile.html')
 
 
-def index_doctor(request, res, data):
+def save_profile_picture(request):
+    for key, file in request.FILES.items():
+        print('here')
+        file_type = str(file.name).split('.')[-1]
+        name = request.POST.get('user_name')
+        if key == 'profilePicture':
+            import os
+            file_path = os.path.join(os.path.dirname(__file__), 'static/images/profiles/{}.{}'.format(name, file_type))
+            dest = open(file_path, 'wb')
+            if file.multiple_chunks:
+                for c in file.chunks():
+                    dest.write(c)
+            else:
+                dest.write(file.read())
+            dest.close()
+            return '{}.{}'.format(name, file_type)
+
+
+def index_doctor(request, res, data, profile_picture):
     request.session['user_name'] = data.get('user_name')
     request.session['email'] = data.get('email')
     request.session['is_authenticated'] = True
@@ -267,7 +285,8 @@ def index_doctor(request, res, data):
         "follow_list": [],
         "follower_count": 0,
         "post_count": 0,
-        "posts": []
+        "posts": [],
+        "profile_picture": profile_picture
     }
     es.index(index='doctor', id=body['user_name'], body=body)
 
@@ -280,7 +299,8 @@ def create_profile(request):
             try:
                 res = es.get(index='doctor-activation', id=data.get('email'))
                 if str(res['_source']['token']) == str(data.get('otp')):
-                    index_doctor(request, res, data)
+                    profile_picture = save_profile_picture(request)
+                    index_doctor(request, res, data, profile_picture)
                     response_data = {
                         "redirect": True,
                         "redirect_url": "/"
@@ -319,7 +339,7 @@ def create_profile(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def view_profile(request, user_name):
-    if request.session['is_authenticated']:
+    if 'is_authenticated' in request.session and request.session['is_authenticated']:
         res_doctor = es.get(index=['doctor'], id=user_name)
         query_body = {
             "query": {
@@ -355,6 +375,10 @@ def view_profile(request, user_name):
             'posts': post_list,
             'isFollowing': is_following
         }
+        if 'profile_picture' in res_doctor['_source']:
+            context['profile_picture'] = res_doctor['_source']['profile_picture']
+        else:
+            context['profile_picture'] = 'default.jpg'
         return render(request, 'smfhcp/view_profile.html', context)
     else:
         return redirect("/")

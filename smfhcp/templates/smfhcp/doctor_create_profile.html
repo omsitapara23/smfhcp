@@ -17,10 +17,10 @@
     }
 </style>
 
-<div class="container" style="padding-top: 40px !important; padding-bottom: 40px !important;">
-  <div class="row border-0" style="background-color: white; margin: 40px 120px 40px 120px; border-radius: 8px;">
+<div class="container" style="padding-top: 10px !important; padding-bottom: 40px !important;">
+  <div class="row border-0" style="background-color: white; margin: 10px 120px 40px 120px; border-radius: 8px;">
       <div class="col-md-12" style="padding: 50px 50px 50px 50px;">
-        <form action="create_profile/" method="POST" id="createProfileForm">
+        <form enctype="multipart/form-data" action="create_profile/" method="POST" id="createProfileForm">
             {% csrf_token %}
             <h2>General profile</h2>
           <div class="form-group">
@@ -54,6 +54,14 @@
             <div class="form-group">
                 <label for="txtConfirmPassword">Confirm Password</label>
                 <input name="password" type="password" required="true" class="form-control" id="txtConfirmPassword">
+            </div>
+            <div class="form-group">
+                <input id="upload" type="file" name="profilePicture" class="form-control border-0" onchange="fileName()" accept="image/png, image/jpeg" style="position: absolute; left: -99999rem">
+                <label id="upload-label" for="upload">Profile Picture : </label>
+                <div class="input-group-append" style="display: flex;">
+                    <label for="upload" class="btn btn-light m-0 rounded-pill px-4"> <i class="fa fa-cloud-upload mr-2 text-muted"></i><small class="text-uppercase font-weight-bold text-muted">Choose file</small></label>
+                    <span id="fileNameSpan" class="my-auto" style="margin-left: 10px; display: none;"></span>
+                </div>
             </div>
             <hr/>
             <h2>Experience</h2>
@@ -98,12 +106,21 @@
                     </span>
                 </div>
             </div>
-            <div id="errorDiv" role="alert"></div>
+            <div id="errorDiv" role="alert" align="center"></div>
           <button type="submit" class="btn btn-success btn-block" style="padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 40px; border-radius: 40px !important;">Create Profile</button>
         </form>
       </div>
   </div>
 </div>
+
+<script>
+    function fileName() {
+        var name = document.getElementById("upload").value;
+        console.log(name);
+        document.getElementById("fileNameSpan").textContent = name.split(/(\\|\/)/g).pop();
+        document.getElementById("fileNameSpan").style.display = "inline";
+    }
+</script>
 
 {% endif %}
 
