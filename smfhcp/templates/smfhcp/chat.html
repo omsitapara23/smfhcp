@@ -1,0 +1,44 @@
+{% load static %}
+
+{% block chat %}
+
+<div class="modal fade bd-example-modal-lg" id="chatModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+     <div class="modal-content" style="background-color: #F9F9F9;">
+       <div class="modal-header" style="padding-right: 30px; padding-left: 30px;">
+         <h5 class="modal-title" id="chatModalTitle">SMFHCP Chat</h5>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="chatModalCloseButton">
+           <span aria-hidden="true">&times;</span>
+         </button>
+       </div>
+       <div class="modal-body" style="padding: 20px 30px 30px 30px;">
+         <small class="text-muted">This chat is powered by <a href="https://talkjs.com" target="_blank">talkjs</a>. You can actively chat with people you follow and they follow you back.</small>
+         <!-- minified snippet to load TalkJS without delaying your page -->
+        <script>
+        (function(t,a,l,k,j,s){
+        s=a.createElement('script');s.async=1;s.src="https://cdn.talkjs.com/talk.js";a.head.appendChild(s)
+        ;k=t.Promise;t.Talk={v:3,ready:{then:function(f){if(k)return new k(function(r,e){l.push([f,r,e])});l
+        .push([f])},catch:function(){return k&&new k()},c:l}};})(window,document,[]);
+        </script>
+
+        <!-- container element in which TalkJS will display a chat UI -->
+           <div class="row" style="margin: 30px 30px 30px 30px;">
+               <div class="col-md-4" style="padding-right: 0px; padding-left: 50px; margin-bottom: 10px;">
+                   <div id="followListWrapper">
+                       <div class="list-group" id="followList" style="overflow-y:auto; -webkit-overflow-scrolling: touch; max-height: 500px;">
+                       </div>
+                   </div>
+               </div>
+               <div class="col-md-8" style="padding-left: 37px;">
+                   <div id="talkjs-container" style="height: 500px;"><i>Loading chat...</i></div>
+               </div>
+           </div>
+
+        <!-- TalkJS initialization code, which we'll customize in the next steps -->
+        <script src="{% static 'js/chat.js' %}"></script>
+       </div>
+     </div>
+   </div>
+ </div>
+
+{% endblock %}

@@ -39,6 +39,14 @@ def handler500(request):
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def login_view(request):
+    if 'is_authenticated' in request.session and request.session['is_authenticated']:
+        return redirect('/')
+    else:
+        return render(request, 'registrations/login.html')
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def index(request):
     request.session['user_name'] = request.user.username
     request.session['email'] = request.user.email
@@ -212,7 +220,7 @@ def send_invite(request):
                 "email": email_id,
                 "token": token
             }
-            es.index(index='doctor-activation', id=email_id, body=body)
+            # es.index(index='doctor-activation', id=email_id, body=body)
             response_data = {
                 "message": 'Invitation sent successfully.',
                 "success": True
@@ -249,7 +257,25 @@ def doctor_signup(request, otp):
     return render(request, 'smfhcp/doctor_create_profile.html')
 
 
-def index_doctor(request, res, data):
+def save_profile_picture(request):
+    for key, file in request.FILES.items():
+        print('here')
+        file_type = str(file.name).split('.')[-1]
+        name = request.POST.get('user_name')
+        if key == 'profilePicture':
+            import os
+            file_path = os.path.join(os.path.dirname(__file__), 'static/images/profiles/{}.{}'.format(name, file_type))
+            dest = open(file_path, 'wb')
+            if file.multiple_chunks:
+                for c in file.chunks():
+                    dest.write(c)
+            else:
+                dest.write(file.read())
+            dest.close()
+            return '{}.{}'.format(name, file_type)
+
+
+def index_doctor(request, res, data, profile_picture):
     request.session['user_name'] = data.get('user_name')
     request.session['email'] = data.get('email')
     request.session['is_authenticated'] = True
@@ -267,7 +293,8 @@ def index_doctor(request, res, data):
         "follow_list": [],
         "follower_count": 0,
         "post_count": 0,
-        "posts": []
+        "posts": [],
+        "profile_picture": profile_picture
     }
     es.index(index='doctor', id=body['user_name'], body=body)
 
@@ -280,7 +307,8 @@ def create_profile(request):
             try:
                 res = es.get(index='doctor-activation', id=data.get('email'))
                 if str(res['_source']['token']) == str(data.get('otp')):
-                    index_doctor(request, res, data)
+                    profile_picture = save_profile_picture(request)
+                    index_doctor(request, res, data, profile_picture)
                     response_data = {
                         "redirect": True,
                         "redirect_url": "/"
@@ -319,7 +347,7 @@ def create_profile(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def view_profile(request, user_name):
-    if request.session['is_authenticated']:
+    if 'is_authenticated' in request.session and request.session['is_authenticated']:
         res_doctor = es.get(index=['doctor'], id=user_name)
         query_body = {
             "query": {
@@ -355,6 +383,10 @@ def view_profile(request, user_name):
             'posts': post_list,
             'isFollowing': is_following
         }
+        if 'profile_picture' in res_doctor['_source']:
+            context['profile_picture'] = res_doctor['_source']['profile_picture']
+        else:
+            context['profile_picture'] = 'default.jpg'
         return render(request, 'smfhcp/view_profile.html', context)
     else:
         return redirect("/")
@@ -409,7 +441,7 @@ def update_profile(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def index_post(request, data, post_type_case_study=True):
@@ -556,7 +588,7 @@ def create_case_study(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -574,7 +606,7 @@ def create_general_post(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def update_follow_count(data):
@@ -630,7 +662,7 @@ def follow_or_unfollow(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def add_comment(request):
@@ -660,7 +692,7 @@ def add_comment(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def add_reply(request):
@@ -686,7 +718,7 @@ def add_reply(request):
             content_type="application/json"
         )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 def send_password_reset_email(res, token):
@@ -759,7 +791,7 @@ def forgot_password(request):
                 content_type="application/json"
             )
     else:
-        PermissionDenied()
+        raise PermissionDenied()
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -798,6 +830,36 @@ def reset_password(request, user_name, otp):
         request.session['email'] = res['email']
         request.session['is_authenticated'] = True
         return redirect('/')
+
+
+def get_follow_list(request):
+    if request.is_ajax():
+        if 'is_authenticated' in request.session and request.session['is_authenticated']:
+            me = {
+                'id': request.session['user_name'],
+                'name': request.session['user_name']
+            }
+            follow_list = []
+            res = es.get(index="doctor", id=request.session['user_name'])
+            following = res['_source']['follow_list']
+            for user in following:
+                talk_body = {
+                    'id': user,
+                    'name': user
+                }
+                follow_list.append(talk_body)
+            response = {
+                'me': me,
+                'follow_list': follow_list
+            }
+            return HttpResponse(
+                json.dumps(response),
+                content_type="application/json"
+            )
+        else:
+            raise PermissionDenied()
+    else:
+        raise PermissionDenied()
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

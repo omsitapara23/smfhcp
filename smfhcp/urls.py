@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.base_view, name='base'),
     path('login_info/', views.index, name='index'),
-    path('login/', auth_views.LoginView.as_view(template_name='registrations/login.html'), name='login'),
+    path('login/', views.login_view, name='login'),
     path('retry/', auth_views.LoginView.as_view(template_name='registrations/retry_signup.html'), name='retry'),
     path('logout/', views.logout, name='logout'),
     path('login/signup_email/', views.signup_email, name='signup_email'),
@@ -23,5 +23,6 @@ urlpatterns = [
     path('add_reply/', views.add_reply, name='add_reply'),
     path('forgot_password/', views.forgot_password, name='forgot_password'),
     path('reset_password/<str:user_name>/<str:otp>', views.reset_password, name='reset_password'),
+    path('get_follow_list/', views.get_follow_list, name='get_follow_list'),
     path('oauth/', include('social_django.urls', namespace='social'))
 ]
