@@ -26,6 +26,14 @@ def random_with_n_digits(n):
     return randint(range_start, range_end)
 
 
+def handler404(request, exception):
+    return render(request, 'smfhcp/404.html', status=404)
+
+
+def handler500(request):
+    return render(request, 'smfhcp/500.html', status=500)
+
+
 def base_view(request):
     context = {
         'posts_available': False
@@ -64,13 +72,28 @@ def base_view(request):
     return render(request, 'smfhcp/home.html', context)
 
 
-def handler404(request, exception):
-    return render(request, 'smfhcp/404.html', status=404)
-
-
-def handler500(request):
-    return render(request, 'smfhcp/500.html', status=500)
-
+def trending_view(request):
+    query_body = {
+        "query": {
+            "match_all": { }
+        }
+    }
+    res = es.search(index=['post'], body=query_body)
+    post_list = res['hits']['hits']
+    for post in post_list:
+        string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", post['_source']['date'])
+        dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
+        dt = dt.astimezone(pytz.UTC)
+        post['_source']['date'] = pretty_date(dt)
+        post["_source"]['isFollowing'] = find_if_follows(request, post['_source']['user_name'])
+    print(post_list)
+    # Sorting the post list based on view_count
+    post_list_sorted = sorted(post_list, key=lambda k: k['_source']['date'])
+    context = {
+        'post_count': len(post_list_sorted),
+        'posts': post_list
+    }
+    return render(request, 'smfhcp/trending.html', context)
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def login_view(request):

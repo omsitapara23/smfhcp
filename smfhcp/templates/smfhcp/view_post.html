@@ -21,7 +21,6 @@
                 <h2>{{ title }}</h2>
                 <p style="margin-bottom: 0px;"><a href="/view_profile/{{  user_name }}" style="color: black">{{ full_name }}</a> | <span class="text-muted">{{ profession }}, {{ institution }}</span><br>
                 <small class="text-muted">Posted {{ date }}</small>
-<!--                <small class="text-muted">Views: {{ view_count }}</small>-->
                 </p>
             </div>
             {% if user_name != request.session.user_name %}
