@@ -25,5 +25,6 @@ urlpatterns = [
     path('forgot_password/', views.forgot_password, name='forgot_password'),
     path('reset_password/<str:user_name>/<str:otp>', views.reset_password, name='reset_password'),
     path('get_follow_list/', views.get_follow_list, name='get_follow_list'),
+    path('search/', views.search, name='search'),
     path('oauth/', include('social_django.urls', namespace='social'))
 ]

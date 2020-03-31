@@ -1,0 +1,62 @@
+{
+    "query": {
+        "bool": {
+            "should": [
+                {
+                    "multi_match": {
+                        "query": "",
+                        "fields": ["user_name^2",
+                            "full_name^2",
+                            "title^2",
+                            "tags^2",
+                            "description",
+                            "remarks",
+                            "diagnosis",
+                            "examination",
+                            "history",
+                            "treatment",
+                            "prevention"
+                        ],
+                        "operator": "AND"
+                    }
+                },
+                {
+                    "multi_match": {
+                        "query": "",
+                        "fields": ["user_name^2",
+                            "full_name^2",
+                            "title^2",
+                            "tags^2",
+                            "description",
+                            "remarks",
+                            "diagnosis",
+                            "examination",
+                            "history",
+                            "treatment",
+                            "prevention"
+                        ],
+                        "operator": "OR"
+                    }
+                },
+                {
+                    "multi_match": {
+                        "query": "",
+                        "fields": ["user_name^2",
+                            "full_name^2",
+                            "title^2",
+                            "tags^2",
+                            "description",
+                            "remarks",
+                            "diagnosis",
+                            "examination",
+                            "history",
+                            "treatment",
+                            "prevention"
+                        ],
+                        "fuzziness": "AUTO"
+                    }
+                }
+            ]
+        }
+    }
+}
