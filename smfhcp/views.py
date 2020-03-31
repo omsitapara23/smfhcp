@@ -83,9 +83,9 @@ def trending_view(request):
         post['_source']['date'] = pretty_date(dt)
         post["_source"]['isFollowing'] = find_if_follows(request, post['_source']['user_name'])
     # Sorting the post list based on view_count
-    post_list_sorted = sorted(post_list, key=lambda k: k['_source']['view_count'])
+    post_list.sort(key=lambda k: k['_source']['view_count'], reverse=True)
     context = {
-        'post_count': len(post_list_sorted),
+        'post_count': len(post_list),
         'posts': post_list
     }
     return render(request, 'smfhcp/trending.html', context)
@@ -948,7 +948,9 @@ def search(request):
         "posts": [],
         "search_query": query
     }
+    search_hits = False
     for hit in doctor_hits:
+        search_hits = True
         if "profile_picture" in hit['_source'] and hit['_source']['profile_picture'] != "":
             hit['_source']['profile_picture'] = '/static/images/profiles/{}'.format(hit['_source']['profile_picture'])
         else:
@@ -956,6 +958,7 @@ def search(request):
         context["doctors"].append(hit['_source'])
     post_hits = search_for_posts(query)
     for hit in post_hits:
+        search_hits = True
         dt = create_time_from_utc_string(hit['_source']['date'])
         hit['_source']['date'] = pretty_date(dt)
         hit['_source']['id'] = hit['_id']
@@ -964,6 +967,7 @@ def search(request):
         else:
             hit['_source']['isFollowing'] = False
         context["posts"].append(hit['_source'])
+    context["hits"] = search_hits
     return render(request, 'smfhcp/search.html', context)
 
 
