@@ -1,0 +1,69 @@
+{% extends 'smfhcp/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+{% autoescape off %}
+
+{% if request.session.is_authenticated %}
+
+<div class="d-flex justify-content-center">
+    <div class="container" style="margin-top: 180px; max-width: 800px; margin-bottom: 100px;">
+        <div>
+            {% for doctor in doctors %}
+                <p> {{ doctor.user_name }} | {{ doctor.full_name }} | {{ doctor.profession }} | {{ doctor.institution }} | {{ doctor.profile_picture }} </p>
+                <hr>
+            {% endfor %}
+            {% for post in posts %}
+                <div class="container" style="max-width: 800px; margin-bottom: 80px;">
+                    <div style="margin-bottom: 15px;">
+                        {% for tag in post.tags %}
+                            <div class="text-muted" style="background-color: #F7F7F7; padding: 5px 15px 5px 15px; margin-right: 12px; display: inline-block; font-size: 14px; border-radius: 3px;">{{ tag }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h2>{{ post.title }}</h2>
+                            <p style="margin-bottom: 0px;"><a href="/view_profile/{{  post.user_name }}" style="color: black">{{ post.full_name }}</a> | <span class="text-muted">{{ post.profession }}, {{ post.institution }}</span><br>
+                            <small class="text-muted">Posted {{ post.date }}</small>
+                            </p>
+                        </div>
+                        {% if post.user_name != request.session.user_name %}
+                            <div class="col-md-2" style="padding-top: 20px;">
+                                <a href="{{ post.user_name }}" id="followLink">
+                                    <div data-toggle="tooltip" data-placement="top" title="{% if post.isFollowing %}Unfollow {% else %}Follow {% endif %}{{ user_name }}" id="followDiv" style="display: inline-block; padding-left: 9px; padding-top: 5px; background-color: #F7F7F7; border-radius: 20px; width: 40px; height: 40px; border: 1px solid #eaeaea">
+                                        <image src="/static/images/{% if post.isFollowing %}unfollow{% else %}follow{% endif %}.png" style="width: 20px;" id="followImage"></image>
+                                    </div>
+                                </a>
+                            </div>
+                       {% endif %}
+                    </div>
+                    <hr>
+                    {% if post.description %}
+                    <h3>Description</h3>
+                    <p>{{ post.description|safe|truncatewords_html:"50" }} <small class="text-muted"><a href="/view_post/{{ post.id }}" target="_blank" style="color: #3f3f3f;">Read More</a></small></p>
+                    {% else %}
+                    <h3>History</h3>
+                    <p>{{ post.history }}</p>
+                    <h3>Examination</h3>
+                    <p>{{ post.examination|safe|truncatewords_html:"50" }} <small class="text-muted"><a href="/view_post/{{ post.id }}" target="_blank" style="color: #3f3f3f;">Read More</a></small></p>
+                    {% endif %}
+                    <hr>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#search_query").val("{{ search_query }}")
+    });
+</script>
+
+{% endif %}
+
+{% endautoescape %}
+
+{% endblock %}

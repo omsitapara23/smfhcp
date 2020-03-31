@@ -39,11 +39,10 @@ def base_view(request):
         'posts_available': False
     }
     if 'is_authenticated' in request.session and request.session['is_authenticated']:
-        res_user, is_doctor = find_user(request.session['user_name'])
-        print(res_user)
+        res_user, _ = find_user(request.session['user_name'])
         follow_list = res_user['follow_list']
         post_list = []
-        posts = True
+        posts = False
         for user in follow_list:
             query_body = {
                 "query": {
@@ -54,16 +53,13 @@ def base_view(request):
             }
             res = es.search(index=['post'], body=query_body)
             post_list_temp = res['hits']['hits']
-            print(post_list_temp)
             for post in post_list_temp:
+                posts = True
                 string = re.sub("\+(?P<hour>\d{2}):(?P<minute>\d{2})$", "+\g<hour>\g<minute>", post['_source']['date'])
                 dt = datetime.datetime.strptime(string, "%Y-%m-%dT%H:%M:%S.%f%z")
                 dt = dt.astimezone(pytz.UTC)
                 post['_source']['date'] = pretty_date(dt)
-            if res['hits']['total']['value'] == 0:
-                posts = False
             post_list += post_list_temp
-        print(post_list)
         context = {
             'post_count': len(post_list),
             'posts_available': posts,
@@ -86,14 +82,14 @@ def trending_view(request):
         dt = dt.astimezone(pytz.UTC)
         post['_source']['date'] = pretty_date(dt)
         post["_source"]['isFollowing'] = find_if_follows(request, post['_source']['user_name'])
-    print(post_list)
     # Sorting the post list based on view_count
-    post_list_sorted = sorted(post_list, key=lambda k: k['_source']['date'])
+    post_list_sorted = sorted(post_list, key=lambda k: k['_source']['view_count'])
     context = {
         'post_count': len(post_list_sorted),
         'posts': post_list
     }
     return render(request, 'smfhcp/trending.html', context)
+
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def login_view(request):
@@ -917,6 +913,58 @@ def get_follow_list(request):
             raise PermissionDenied()
     else:
         raise PermissionDenied()
+
+
+def search_for_doctors(query):
+    query_body = {
+        "query": {
+            "multi_match": {
+                "query": query,
+                "fields": ["user_name^2", "full_name^2", "institution", "profession"],
+                "fuzziness": "AUTO",
+                "type": "best_fields"
+            }
+        }
+    }
+    res = es.search(index="doctor", body=query_body)
+    return res['hits']['hits']
+
+
+def search_for_posts(query):
+    with open('smfhcp/search_query.json') as file:
+        query_body = json.load(file)
+    for i, _ in enumerate(query_body["query"]["bool"]["should"]):
+        query_body["query"]["bool"]["should"][i]["multi_match"]["query"] = query
+    res = es.search(index="post", body=query_body)
+    return res['hits']['hits']
+
+
+def search(request):
+    query = request.GET.get('q')
+    res, _ = find_user(request.session['user_name'])
+    doctor_hits = search_for_doctors(query)
+    context = {
+        "doctors": [],
+        "posts": [],
+        "search_query": query
+    }
+    for hit in doctor_hits:
+        if "profile_picture" in hit['_source'] and hit['_source']['profile_picture'] != "":
+            hit['_source']['profile_picture'] = '/static/images/profiles/{}'.format(hit['_source']['profile_picture'])
+        else:
+            hit['_source']['profile_picture'] = '/static/images/profiles/default.jpg'
+        context["doctors"].append(hit['_source'])
+    post_hits = search_for_posts(query)
+    for hit in post_hits:
+        dt = create_time_from_utc_string(hit['_source']['date'])
+        hit['_source']['date'] = pretty_date(dt)
+        hit['_source']['id'] = hit['_id']
+        if hit['_source']['user_name'] in res['follow_list']:
+            hit['_source']['isFollowing'] = True
+        else:
+            hit['_source']['isFollowing'] = False
+        context["posts"].append(hit['_source'])
+    return render(request, 'smfhcp/search.html', context)
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

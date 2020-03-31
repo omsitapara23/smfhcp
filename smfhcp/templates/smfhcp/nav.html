@@ -36,11 +36,11 @@
   </div>
 
   <div class="form-inline">
-    <form class="form-inline">
+    <form class="form-inline" method="GET" action="/search">
       <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search">
+        <input type="text" id="search_query" name="q" class="form-control" placeholder="Search">
         <div class="input-group-append">
-          <button class="btn btn-secondary" type="button">
+          <button class="btn btn-secondary" type="submit">
             <i class="fa fa-search"></i>
           </button>
         </div>
@@ -79,20 +79,25 @@
   </a>
 {% endif %}
 
-{% include 'smfhcp/invite.html'%}
+{% if request.session.is_doctor %}
 
-{% include 'smfhcp/update.html'%}
+  {% include 'smfhcp/invite.html'%}
 
-{% include 'smfhcp/case_study.html'%}
+  {% include 'smfhcp/update.html'%}
 
-{% include 'smfhcp/general_post.html'%}
+  {% include 'smfhcp/case_study.html'%}
 
-{% include 'smfhcp/chat.html'%}
+  {% include 'smfhcp/general_post.html'%}
 
-<script src="{% static 'js/invite.js' %}"></script>
-<script src="{% static 'js/updateProfile.js' %}"></script>
-<script src="{% static 'js/caseStudy.js' %}"></script>
-<script src="{% static 'js/generalPost.js' %}"></script>
+  {% include 'smfhcp/chat.html'%}
+
+  <script src="{% static 'js/invite.js' %}"></script>
+  <script src="{% static 'js/updateProfile.js' %}"></script>
+  <script src="{% static 'js/caseStudy.js' %}"></script>
+  <script src="{% static 'js/generalPost.js' %}"></script>
+
+{% endif %}
+
 <script src="{% static 'js/follow.js' %}"></script>
 <script src="{% static 'js/comment.js' %}"></script>
 
