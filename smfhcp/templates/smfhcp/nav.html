@@ -20,7 +20,7 @@
     <div class="navbar-nav">
       <a class="nav-item nav-link active" href="#">SMFHCP <span class="sr-only">(current)</span></a>
       <a class="nav-item nav-link" href="/">Home</a>
-      <a class="nav-item nav-link" href="#">Trending</a>
+      <a class="nav-item nav-link" href="/trending">Trending</a>
       {% if request.session.is_doctor %}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="addPost" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -37,12 +37,16 @@
 
   <div class="form-inline">
     <form class="form-inline">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search">
+        <div class="input-group-append">
+          <button class="btn btn-secondary" type="button">
+            <i class="fa fa-search"></i>
+          </button>
+        </div>
+      </div>
       {% if request.session.is_doctor %}
-      <!-- Button trigger modal -->
-      <a class="nav-item nav-link" href="" data-toggle="modal" data-target="#exampleModalCenter">Invite doctor</a>
-      {% endif %}
-      {% if request.session.is_doctor %}
-      <div class="dropdown" style="margin-right: 20px;">
+      <div class="dropdown" style="margin-left: 20px; margin-right: 20px;">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           {{ request.session.user_name }}
         </button>
@@ -56,14 +60,24 @@
         {{ request.session.user_name }}
         </a>
       {% endif %}
-      {% if request.session.is_doctor %}
-        <button class="btn btn-outline-dark" style="margin-right: 20px;" type="button" data-toggle="modal" data-target="#chatModal">Chat</button>
-      {% endif %}
       <a class="btn btn-outline-dark my-2 my-sm-0" href="{% url 'logout' %}" type="submit">Logout</a>
     </form>
   </div>
 
 </nav>
+
+{% if request.session.is_doctor %}
+  <a href="" style="position: fixed; bottom: 40px; right: 40px;" data-toggle="modal" data-target="#chatModal">
+    <div data-toggle="tooltip" data-placement="top" title="Chat" style="display: inline-block; padding-left: 9px; padding-top: 5px; background-color: #F7F7F7; border-radius: 20px; width: 40px; height: 40px; border: 1px solid #eaeaea">
+        <image src="/static/images/chatbox.svg" style="width: 20px;"></image>
+    </div>
+  </a>
+  <a href="" style="position: fixed; bottom: 100px; right: 40px;" data-toggle="modal" data-target="#exampleModalCenter">
+    <div data-toggle="tooltip" data-placement="top" title="Invite doctor" style="display: inline-block; padding-left: 9px; padding-top: 5px; background-color: #F7F7F7; border-radius: 20px; width: 40px; height: 40px; border: 1px solid #eaeaea">
+        <image src="/static/images/add-circle.svg" style="width: 20px;"></image>
+    </div>
+  </a>
+{% endif %}
 
 {% include 'smfhcp/invite.html'%}
 
