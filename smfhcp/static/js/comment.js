@@ -36,37 +36,32 @@ function addComment(user_name, post_id){
         success : function(json) {
             $("#showCommentsWrapper").prepend("<div style=\"margin-bottom: 20px;\" id=" + json.comment_id + ">" +
                     "<div style=\"margin-bottom: 10px; border: 1px solid #EAEAEA; border-radius: 4px;\">" +
-                        "<div class=\"row\" style=\"background-color: #EAEAEA; margin-left: 0px;margin-right: 0px;\">" +
+                        "<div class=\"row\" style=\"background-color: #EAEAEA; padding: 10px; margin-left: 0px;margin-right: 0px;\">" +
                             "<div class=\"col-md-9\" align=\"left\" style=\"padding-left: 12px;\">" +
                                "<p style=\"margin-bottom: 0px; padding-left: 0px;\"><b>" + user_name +"</b></p>" +
                             "</div>" +
-                            "<div class=\"col-md-3\">" +
-                                "<div class=\"row\">" +
-                                    "<div class=\"col-md-5\" align=\"right\" style=\"padding-left: 12px; padding-right: 0px;\">" +
-                                        "<a name=\"replyButton\" href=" + json.comment_id +" id=\"comment" + json.comment_id + "\">" +
-                                            "<image src=\"/static/images/reply.svg\" style=\"width: 10px;\"></image>" +
+                            "<div class=\"col-md-3\" align=\"right\">" +
+                                        "<a name=\"replyButton\" style=\"width: 14.45px;  display: inline-block;\" href=" + json.comment_id +" id=\"comment" + json.comment_id + "\">" +
+                                            "<image src=\"/static/images/reply.svg\" style=\"width: 10px; float: left;\"></image>" +
                                        "</a>" +
-                                    "</div>" +
-                                    "<div class=\"col-md-7\" align=\"right\" style=\"padding-right: 12px; padding-left: 0px;\">" +
-                                        "<small class=\"text-muted\" style=\"padding-right: 0px; margin-bottom: 0px;\">just now</small>" +
-                                    "</div>" +
-                                "</div>" +
+                                        "<small class=\"text-muted\" style=\"padding-left: 5px; padding-right: 0px; margin-bottom: 0px;\">just now</small>" +
                             "</div>" +
                         "</div>" +
-                        "<div style=\"padding: .375rem .75rem; background-color: #F7F7F7;\">" +
+                        "<div style=\"padding: 10px; padding-left: 22px; padding-right: 22px; background-color: #F7F7F7;\">" +
                             "<p style=\"color: #495057; margin-bottom: 0px; white-space: pre-wrap;\">" + $("#commentText").val() + "</p>" +
                         "</div>" +
                     "</div>" +
                     "<div class=\"row justify-content-end\">" +
                         "<div class=\"col-md-11\" id=\"showReplyWrapper" + json.comment_id + "\">" +
-                            "<div id=\"reply" + json.comment_id + "\" style=\"display: none; margin-bottom: 10px;\">" +
+                            "<div id=\"reply" + json.comment_id + "\" style=\"margin-top: 20px; display: none; margin-bottom: 10px;\">" +
                                 "<form method=\"POST\" id=\"reply-form" + json.comment_id + "\" about=" + user_name + "/" + post_id + ">" +
-                                   " <div class=\"form-group\" style=\"margin-left: 0px; margin-right: 0px; margin-bottom: 5px;\">" +
-                                        "<label for=\"replyText" + json.comment_id + "\">Add a reply</label>" +
-                                        "<textarea name=\"replyText\" class=\"form-control\" id=\"replyText" + json.comment_id + "\" rows=\"2\" required></textarea>" +
+                                    "<div class=\"form-row\">" +
+                                   " <div class=\"form-group  col-md-9\">" +
+                                        "<textarea name=\"replyText\" class=\"form-control\" id=\"replyText" + json.comment_id + "\" rows=\"2\" required placeholder=\"Add a reply...\"></textarea>" +
                                     "</div>" +
-                                   " <div align=\"right\">" +
+                                   " <div class=\"form-group col-md-3\">" +
                                       "  <button type=\"submit\" name=\"submitReplyButton\" about="+ json.comment_id + " id=\"addReplyButton" + json.comment_id + "\" class=\"btn btn-success btn-block\" style=\"padding-top: 9px; padding-bottom: 9px; background-color: #3ecb87; border: none; margin-top: 10px; border-radius: 20px !important; max-width: 150px;\">Post reply</button>" +
+                                    "</div>" +
                                     "</div>" +
                                 "</form>" +
                             "</div>" +
@@ -98,7 +93,7 @@ function addReply(user_name, post_id, comment_id, replyText){
             $("#replyText" + comment_id).val('')
             $("#reply" + comment_id).css("display", "none")
             $("#showReplyWrapper" + comment_id).append("<div style=\"margin-bottom: 10px; border: 1px solid #EAEAEA; border-radius: 4px; \">" +
-                                "<div class=\"row\" style=\"background-color: #EAEAEA; margin-left: 0px;margin-right: 0px;\">" +
+                                "<div class=\"row\" style=\"background-color: #EAEAEA; padding: 10px; margin-left: 0px;margin-right: 0px;\">" +
                                     "<div class=\"col-md-8\" align=\"left\" style=\"padding-left: 12px;\">" +
                                         "<p style=\"margin-bottom: 0px; padding-left: 0px;\"><b>" + user_name + "</b></p>" +
                                     "</div>" +
@@ -106,7 +101,7 @@ function addReply(user_name, post_id, comment_id, replyText){
                                         "<small class=\"text-muted\" style=\"padding-right: 0px; margin-bottom: 0px;\">just now</small>" +
                                     "</div>" +
                                 "</div>" +
-                                "<div style=\"padding: .375rem .75rem; background-color: #F7F7F7;\">" +
+                                "<div style=\"padding: 10px; padding-left: 22px; padding-right: 22px; background-color: #F7F7F7;\">" +
                                     "<p style=\"color: #495057; margin-bottom: 0px; white-space: pre-wrap;\">" + replyText + "</p>" +
                                 "</div>" +
                             "</div>");

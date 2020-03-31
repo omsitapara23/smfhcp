@@ -26,10 +26,6 @@ $('#signUpFormCloseButton').on('click', function(event){
     $('#errorDiv').removeClass("alert alert-success alert-danger")
 });
 
-function csrfSafeMethod(method) {
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
 function invite() {
     var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
     $.ajax({
