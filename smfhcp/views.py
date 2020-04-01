@@ -269,6 +269,11 @@ def send_invite(request):
     if valid is True:
         res = send_invitation_email(email_id, token)
         if res is True:
+            body = {
+                "email": email_id,
+                "token": token
+            }
+            es.index(index='doctor-activation', id=email_id, body=body)
             response_data = {
                 "message": 'Invitation sent successfully.',
                 "success": True
