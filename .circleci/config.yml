@@ -17,6 +17,7 @@ jobs:
     docker:
       - image: circleci/python:3.6.4
     steps:
+      - checkout
       - run:
           name: LS
           command: 'ls'
@@ -29,7 +30,7 @@ jobs:
       - run:
           name: Migrate
           command: 'python manage.py migrate'
-      - checkout
+
       - run:
           name: Build
           command: 'python manage.py check'
