@@ -1,0 +1,38 @@
+version: 2
+
+jobs:
+  check-flake8:
+    docker:
+      - image: circleci/python:3.6.4
+    steps:
+      - run:
+          name: Installing flake8
+          command: 'sudo pip install flake8'
+      - checkout
+      - run:
+          name: Checking for flake8 errors
+          command: 'flake8 '
+
+  build-status:
+    docker:
+      - image: circleci/python:3.6.4
+    steps:
+      - run:
+          name: Installing Dependencies
+          command: 'python setup.py install'
+      - run:
+          name: Make migrations
+          command: 'python manage.py makemigrations'
+      - run:
+          name: Migrate
+          command: 'python manage.py migrate'
+      - checkout
+      - run:
+          name: Build
+          command: 'python manage.py check'
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build-status
