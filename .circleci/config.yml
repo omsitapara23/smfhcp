@@ -18,6 +18,9 @@ jobs:
       - image: circleci/python:3.6.4
     steps:
       - run:
+          name: LS
+          command: 'ls'
+      - run:
           name: Installing Dependencies
           command: 'python setup.py install'
       - run:
