@@ -23,7 +23,7 @@ jobs:
           command: 'ls'
       - run:
           name: Installing Dependencies
-          command: 'python setup.py install'
+          command: 'sudo python setup.py install'
       - run:
           name: Make migrations
           command: 'python manage.py makemigrations'
