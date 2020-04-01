@@ -7,4 +7,5 @@ echo "Installed packages"
 echo "Installed packages"
 python manage.py makemigrations
 python manage.py migrate
+flake8
 python manage.py runserver

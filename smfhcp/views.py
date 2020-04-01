@@ -71,7 +71,7 @@ def base_view(request):
 def trending_view(request):
     query_body = {
         "query": {
-            "match_all": { }
+            "match_all": {}
         }
     }
     res = es.search(index=['post'], body=query_body)
@@ -133,7 +133,7 @@ def index_user(body):
             es.get(index='general-user', id=body['user_name'])
         except elasticsearch.NotFoundError:
             try:
-                res_doctor = es.get(index=['doctor'], id=body['user_name'])
+                es.get(index=['doctor'], id=body['user_name'])
             except elasticsearch.NotFoundError:
                 es.index(index='general-user', id=body['user_name'], body=body)
                 return True
@@ -269,11 +269,6 @@ def send_invite(request):
     if valid is True:
         res = send_invitation_email(email_id, token)
         if res is True:
-            body = {
-                "email": email_id,
-                "token": token
-            }
-            # es.index(index='doctor-activation', id=email_id, body=body)
             response_data = {
                 "message": 'Invitation sent successfully.',
                 "success": True
@@ -753,7 +748,8 @@ def add_reply(request):
         print(request.POST)
         body = {
             "script": {
-                "source": "for(int i=0; i < ctx._source.comments.size(); i++){ if(ctx._source.comments[i].comment_id == params.comment_id){ ctx._source.comments[i].replies.add(params.reply); } }",
+                "source": "for(int i=0; i < ctx._source.comments.size(); i++){ if(ctx._source.comments[i].comment_id "
+                          "== params.comment_id){ ctx._source.comments[i].replies.add(params.reply); } }",
                 "lang": "painless",
                 "params": {
                     "comment_id": request.POST.get('comment_id'),
