@@ -16,7 +16,7 @@
                    <div class="container" style="max-width: 800px; margin-bottom: 80px;">
                        <div style="margin-bottom: 15px;">
                            {% for tag in values.tags %}
-                               <div class="text-muted" style="background-color: #F7F7F7; padding: 5px 15px 5px 15px; margin-right: 12px; display: inline-block; font-size: 14px; border-radius: 3px;">{{ tag }}</div>
+                               <a class="text-muted" href="/tagged/{{ tag }}" style="text-decoration: none; background-color: #F7F7F7; padding: 5px 15px 5px 15px; margin-right: 12px; display: inline-block; font-size: 14px; border-radius: 3px;">{{ tag }}</a>
                            {% endfor %}
                        </div>
                        <div class="row">
