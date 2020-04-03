@@ -972,6 +972,44 @@ def search(request):
     return render(request, 'smfhcp/search.html', context)
 
 
+def search_for_tags(tag):
+    # Query is NOT fuzzy because we want to find posts tagged with exactly same tag
+    query = {
+        "query": {
+           "term": {
+                "tags.keyword": {
+                    "value": tag
+                }
+            }
+        }
+    }
+    return es.search(index='post', body=query)['hits']['hits']
+
+
+def tagged(request, tag):
+    if 'is_authenticated' in request.session and request.session['is_authenticated']:
+        res, _ = find_user(request.session['user_name'])
+        context = {
+            "did_find_any": False,
+            "posts": [],
+            "tag_searched": tag
+        }
+        post_hits = search_for_tags(tag)
+        for hit in post_hits:
+            context['did_find_any'] = True
+            dt = create_time_from_utc_string(hit['_source']['date'])
+            hit['_source']['date'] = pretty_date(dt)
+            hit['_source']['id'] = hit['_id']
+            if hit['_source']['user_name'] in res['follow_list']:
+                hit['_source']['isFollowing'] = True
+            else:
+                hit['_source']['isFollowing'] = False
+            context["posts"].append(hit['_source'])
+        return render(request, 'smfhcp/tagged.html', context)
+    else:
+        return redirect('/')
+
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def logout(request):
     logout_user(request)
