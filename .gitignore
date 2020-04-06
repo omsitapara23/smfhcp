@@ -6,4 +6,6 @@ smfhcp/__pycache__
 smfhcpApp/__pycache__
 smfhcp/migrations/__pycache__
 smfhcpApp/templatetags/__pycache__
+smfhcp/views/__pycache__
+smfhcp/utils/__pycache__
 db.sqlite3
