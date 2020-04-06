@@ -109,6 +109,8 @@ SOCIAL_AUTH_GOOGLE_PLUS_SCOPE = [
     'https://www.googleapis.com/auth/userinfo.profile'
 ]
 
+ELASTICSEARCH_HOST = 'https://dxqik4ewu7:kiao9bklju@smfhcp-testing-9703004755.eu-central-1.bonsaisearch.net:443'
+
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 # LOGIN_REDIRECT_URL = 'login_info'
