@@ -40,7 +40,7 @@ jobs:
   testing-CodeCov:
     docker:
       - image: circleci/python:3.6.4
-      steps:
+    steps:
         - checkout
         - run:
             name: Installing CodeCov
