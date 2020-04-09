@@ -28,6 +28,12 @@ jobs:
           name: Migrate
           command: 'python manage.py migrate'
       - run:
+          name: Test and coverage
+          command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
+      - run:
+          name: Coverage report
+          command: 'coverage report'
+      - run:
           name: Build
           command: 'python manage.py check'
 

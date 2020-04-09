@@ -8,21 +8,25 @@ import re
 
 class SmfhcpUtils:
     def find_hash(self, input):
+        if input is None:
+            raise TypeError
         import hashlib
         return hashlib.sha256(str(input).encode(constants.UTF_8)).hexdigest()
 
     def random_with_n_digits(self, n):
+        if n < 1:
+            raise ValueError
         range_start = 10 ** (n - 1)
         range_end = (10 ** n) - 1
         return randint(range_start, range_end)
 
     def find_user(self, user_name, es):
         try:
-            res_user = es.get(index=[constants.GENERAL_USER_INDEX], id=user_name)
+            res_user = es.get(index=constants.GENERAL_USER_INDEX, id=user_name)
             return res_user['_source'], False
         except elasticsearch.NotFoundError:
             try:
-                res_doctor = es.get(index=[constants.DOCTOR_INDEX], id=user_name)
+                res_doctor = es.get(index=constants.DOCTOR_INDEX, id=user_name)
                 return res_doctor['_source'], True
             except elasticsearch.NotFoundError:
                 return None, None
@@ -45,7 +49,7 @@ class SmfhcpUtils:
                 return str(second_diff // 60) + " minutes ago"
             if second_diff < 7200:
                 return "an hour ago"
-            if second_diff < 86400:
+            else:
                 return str(second_diff // 3600) + " hours ago"
         elif day_diff == 1:
             return "Yesterday"
