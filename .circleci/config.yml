@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 
 jobs:
   check-flake8:
@@ -38,6 +38,8 @@ jobs:
           command: 'python manage.py check'
 
   testing-CodeCov:
+    orbs:
+      codecov: codecov/codecov@1.0.1
     docker:
       - image: circleci/python:3.6.4
     steps:
@@ -60,12 +62,11 @@ jobs:
         - run:
             name: Coverage report
             command: 'coverage report'
-        - run:
-            name: CodeCov
-            command: 'codecov'
+        - codecov/upload:
+            file: {{ coverage_report_filepath }}
 
 workflows:
-  version: 2
+  version: 2.1
   build:
     jobs:
       - check-flake8
