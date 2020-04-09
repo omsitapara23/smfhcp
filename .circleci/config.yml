@@ -44,7 +44,7 @@ jobs:
         - checkout
         - run:
             name: Installing CodeCov
-            command: 'pip install codecov'
+            command: 'sudo pip install codecov'
         - run:
             name: Installing Dependencies
             command: 'sudo python setup.py install'
