@@ -13,6 +13,9 @@ install:
 
 # Run the unit test
 script:
+  - sudo python setup.py install
+  - python manage.py makemigrations
+  - python manage.py migrate
   - coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test
   - coverage report
 
