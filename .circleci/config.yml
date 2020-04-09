@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-      codecov: codecov/codecov@1.0.4
+      codecov: codecov/codecov@1.0.5
 jobs:
   check-flake8:
     docker:
@@ -59,11 +59,10 @@ jobs:
         - run:
             name: Test and coverage
             command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
-        - run:
-            name: Coverage report
-            command: 'coverage xml'
+        - store_artifacts:
+            path: coverage
         - codecov/upload:
-            file: 'coverage.xml'
+            file: ./coverage/*.json
 
 workflows:
   version: 2.1
