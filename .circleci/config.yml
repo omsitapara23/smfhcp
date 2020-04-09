@@ -59,7 +59,7 @@ jobs:
         - run:
             name: Test and coverage
             command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
-        -run:
+        - run:
             name: CLI Report
             command: 'coverage report'
         - store_artifacts:
