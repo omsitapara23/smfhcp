@@ -1,5 +1,7 @@
-version: 2
+version: 2.1
 
+orbs:
+      codecov: codecov/codecov@1.0.5
 jobs:
   check-flake8:
     docker:
@@ -37,9 +39,38 @@ jobs:
           name: Build
           command: 'python manage.py check'
 
+  testing-CodeCov:
+    docker:
+      - image: circleci/python:3.6.4
+    steps:
+        - checkout
+        - run:
+            name: Installing CodeCov
+            command: 'sudo pip install codecov'
+        - run:
+            name: Installing Dependencies
+            command: 'sudo python setup.py install'
+        - run:
+            name: Make migrations
+            command: 'python manage.py makemigrations'
+        - run:
+            name: Migrate
+            command: 'python manage.py migrate'
+        - run:
+            name: Test and coverage
+            command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
+        - run:
+            name: CLI Report
+            command: 'coverage report'
+        - store_artifacts:
+            path: coverage
+        - codecov/upload:
+            file: ./coverage/*.json
+
 workflows:
-  version: 2
+  version: 2.1
   build:
     jobs:
       - check-flake8
       - build-status
+      - testing-CodeCov
