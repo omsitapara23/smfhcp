@@ -1,6 +1,3 @@
-# Disable sudo to speed up the build
-sudo: false
-
 # Set the build language to Python
 language: python
 
@@ -13,7 +10,7 @@ install:
 
 # Run the unit test
 script:
-  - sudo python setup.py install
+  - sudo python3 setup.py install
   - python manage.py makemigrations
   - python manage.py migrate
   - coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test
