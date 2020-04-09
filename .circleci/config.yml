@@ -1,5 +1,7 @@
 version: 2.1
 
+orbs:
+      codecov: codecov/codecov@1.0.1
 jobs:
   check-flake8:
     docker:
@@ -38,8 +40,6 @@ jobs:
           command: 'python manage.py check'
 
   testing-CodeCov:
-    orbs:
-      codecov: codecov/codecov@1.0.1
     docker:
       - image: circleci/python:3.6.4
     steps:
@@ -61,9 +61,9 @@ jobs:
             command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
         - run:
             name: Coverage report
-            command: 'coverage report'
+            command: 'coverage xml'
         - codecov/upload:
-            file: {{ coverage_report_filepath }}
+            file: 'coverage.xml'
 
 workflows:
   version: 2.1
