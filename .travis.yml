@@ -1,0 +1,21 @@
+# Disable sudo to speed up the build
+sudo: false
+
+# Set the build language to Python
+language: python
+
+# Set the python version to 3.6
+python: 3.6
+
+# Install the codecov pip dependency
+install:
+  - pip install codecov
+
+# Run the unit test
+script:
+  - coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test
+  - coverage report
+
+# Push the results back to codecov
+after_success:
+  - codecov
