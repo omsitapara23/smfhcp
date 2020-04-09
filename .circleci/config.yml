@@ -69,6 +69,4 @@ workflows:
   version: 2.1
   build:
     jobs:
-      - check-flake8
-      - build-status
       - testing-CodeCov
