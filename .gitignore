@@ -9,3 +9,6 @@ smfhcpApp/templatetags/__pycache__
 smfhcp/views/__pycache__
 smfhcp/utils/__pycache__
 db.sqlite3
+.coverage
+htmlcov
+smfhcp/test/__pycache__

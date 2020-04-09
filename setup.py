@@ -12,6 +12,7 @@ setup(
         'python-social-auth',
         'textile',
         'flake8',
-        'pytz'
+        'pytz',
+        'coverage'
     ]
 )
