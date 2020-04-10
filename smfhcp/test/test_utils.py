@@ -1,13 +1,21 @@
 from django.test import TestCase
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 import smfhcp.utils.utils as utils
 import smfhcp.constants as constants
 import elasticsearch
 
 
+class Request(object):
+    pass
+
+
+class DummyElasticSearchDao(object):
+    pass
+
+
 class TestUtils(TestCase):
     smfhcp_utils = utils.SmfhcpUtils()
-    es = elasticsearch.Elasticsearch()
+    es = DummyElasticSearchDao()
 
     def test_find_hash_when_valid_input(self):
         test_string = "test"
@@ -43,29 +51,29 @@ class TestUtils(TestCase):
 
     def test_find_user_when_general_user(self):
         test_user_name = "test_user_name"
-        self.es.get = MagicMock(return_value={'_source': {"test": "pass"}})
+        self.es.get_general_user_by_user_name = MagicMock(return_value={'_source': {"test": "pass"}})
         res, is_doctor = self.smfhcp_utils.find_user(test_user_name, self.es)
-        self.es.get.assert_called_with(index=constants.GENERAL_USER_INDEX, id=test_user_name)
+        self.es.get_general_user_by_user_name.assert_called_with(test_user_name)
         self.assertFalse(is_doctor)
         self.assertEqual(res['test'], 'pass')
 
     def test_find_user_when_doctor(self):
         test_user_name = "test_user_name"
-        self.es.get = MagicMock(side_effect=mock_es_get_function_for_doctor)
+        self.es.get_general_user_by_user_name = MagicMock(side_effect=elasticsearch.NotFoundError())
+        self.es.get_doctor_by_user_name = MagicMock(return_value={'_source': {"test": "pass"}})
         res, is_doctor = self.smfhcp_utils.find_user(test_user_name, self.es)
-        calls = [call(index=constants.GENERAL_USER_INDEX, id=test_user_name), call(index=constants.DOCTOR_INDEX,
-                                                                                   id=test_user_name)]
-        self.es.get.assert_has_calls(calls)
+        self.es.get_general_user_by_user_name.assert_called_with(test_user_name)
+        self.es.get_doctor_by_user_name.assert_called_with(test_user_name)
         self.assertTrue(is_doctor)
         self.assertEqual(res['test'], 'pass')
 
     def test_find_user_when_neither_general_user_nor_doctor(self):
         test_user_name = "test_user_name"
-        self.es.get = MagicMock(side_effect=mock_es_get_function_for_None)
+        self.es.get_general_user_by_user_name = MagicMock(side_effect=elasticsearch.NotFoundError())
+        self.es.get_doctor_by_user_name = MagicMock(side_effect=elasticsearch.NotFoundError())
         res, is_doctor = self.smfhcp_utils.find_user(test_user_name, self.es)
-        calls = [call(index=constants.GENERAL_USER_INDEX, id=test_user_name), call(index=constants.DOCTOR_INDEX,
-                                                                                   id=test_user_name)]
-        self.es.get.assert_has_calls(calls)
+        self.es.get_general_user_by_user_name.assert_called_with(test_user_name)
+        self.es.get_doctor_by_user_name.assert_called_with(test_user_name)
         self.assertIsNone(is_doctor)
         self.assertIsNone(res)
 
@@ -76,17 +84,17 @@ class TestUtils(TestCase):
         request.session = dict()
         request.session['user_name'] = test_user_name
         request.session['is_doctor'] = False
-        self.es.get = MagicMock(return_value={'_source': {"follow_list": [doctor_user_name]}})
+        self.es.get_general_user_by_user_name = MagicMock(return_value={'_source': {"follow_list": [doctor_user_name]}})
         res = self.smfhcp_utils.find_if_follows(request, doctor_user_name, self.es)
-        self.es.get.assert_called_with(index=constants.GENERAL_USER_INDEX, id=test_user_name)
+        self.es.get_general_user_by_user_name.assert_called_with(test_user_name)
         self.assertTrue(res)
-        self.es.get = MagicMock(return_value={'_source': {"follow_list": []}})
+        self.es.get_general_user_by_user_name = MagicMock(return_value={'_source': {"follow_list": []}})
         res = self.smfhcp_utils.find_if_follows(request, doctor_user_name, self.es)
-        self.es.get.assert_called_with(index=constants.GENERAL_USER_INDEX, id=test_user_name)
+        self.es.get_general_user_by_user_name.assert_called_with(test_user_name)
         self.assertFalse(res)
-        self.es.get = MagicMock(return_value={'_source': {}})
+        self.es.get_general_user_by_user_name = MagicMock(return_value={'_source': {}})
         res = self.smfhcp_utils.find_if_follows(request, doctor_user_name, self.es)
-        self.es.get.assert_called_with(index=constants.GENERAL_USER_INDEX, id=test_user_name)
+        self.es.get_general_user_by_user_name.assert_called_with(test_user_name)
         self.assertFalse(res)
 
     def test_find_if_follows_when_doctor(self):
@@ -96,17 +104,17 @@ class TestUtils(TestCase):
         request.session = dict()
         request.session['user_name'] = test_user_name
         request.session['is_doctor'] = True
-        self.es.get = MagicMock(return_value={'_source': {"follow_list": [doctor_user_name]}})
+        self.es.get_doctor_by_user_name = MagicMock(return_value={'_source': {"follow_list": [doctor_user_name]}})
         res = self.smfhcp_utils.find_if_follows(request, doctor_user_name, self.es)
-        self.es.get.assert_called_with(index=constants.DOCTOR_INDEX, id=test_user_name)
+        self.es.get_doctor_by_user_name.assert_called_with(test_user_name)
         self.assertTrue(res)
-        self.es.get = MagicMock(return_value={'_source': {"follow_list": []}})
+        self.es.get_doctor_by_user_name = MagicMock(return_value={'_source': {"follow_list": []}})
         res = self.smfhcp_utils.find_if_follows(request, doctor_user_name, self.es)
-        self.es.get.assert_called_with(index=constants.DOCTOR_INDEX, id=test_user_name)
+        self.es.get_doctor_by_user_name.assert_called_with(test_user_name)
         self.assertFalse(res)
-        self.es.get = MagicMock(return_value={'_source': {}})
+        self.es.get_doctor_by_user_name = MagicMock(return_value={'_source': {}})
         res = self.smfhcp_utils.find_if_follows(request, doctor_user_name, self.es)
-        self.es.get.assert_called_with(index=constants.DOCTOR_INDEX, id=test_user_name)
+        self.es.get_doctor_by_user_name.assert_called_with(test_user_name)
         self.assertFalse(res)
 
     def test_pretty_date(self):
@@ -144,23 +152,3 @@ class TestUtils(TestCase):
         test_time = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=365, hours=2)
         diff = self.smfhcp_utils.pretty_date(test_time)
         self.assertEqual(diff, "1 years ago")
-
-
-def mock_es_get_function_for_doctor(**kwargs):
-    for key, value in kwargs.items():
-        if key == "index" and value == constants.GENERAL_USER_INDEX:
-            raise elasticsearch.NotFoundError
-        else:
-            return {'_source': {"test": "pass"}}
-
-
-def mock_es_get_function_for_None(**kwargs):
-    for key, value in kwargs.items():
-        if key == "index" and value == constants.GENERAL_USER_INDEX:
-            raise elasticsearch.NotFoundError
-        elif key == "index" and value == constants.DOCTOR_INDEX:
-            raise elasticsearch.NotFoundError
-
-
-class Request(object):
-    pass
