@@ -22,11 +22,11 @@ class SmfhcpUtils:
 
     def find_user(self, user_name, es):
         try:
-            res_user = es.get(index=constants.GENERAL_USER_INDEX, id=user_name)
+            res_user = es.get_general_user_by_user_name(user_name)
             return res_user['_source'], False
         except elasticsearch.NotFoundError:
             try:
-                res_doctor = es.get(index=constants.DOCTOR_INDEX, id=user_name)
+                res_doctor = es.get_doctor_by_user_name(user_name)
                 return res_doctor['_source'], True
             except elasticsearch.NotFoundError:
                 return None, None
@@ -66,11 +66,11 @@ class SmfhcpUtils:
 
     def find_if_follows(self, request, doctor_user_name, es):
         if request.session['is_doctor']:
-            res = es.get(index=constants.DOCTOR_INDEX, id=request.session['user_name'])
+            res = es.get_doctor_by_user_name(request.session['user_name'])
             if "follow_list" in res["_source"] and str(doctor_user_name) in res["_source"]["follow_list"]:
                 return True
         else:
-            res = es.get(index=constants.GENERAL_USER_INDEX, id=request.session['user_name'])
+            res = es.get_general_user_by_user_name(request.session['user_name'])
             if "follow_list" in res["_source"] and str(doctor_user_name) in res["_source"]["follow_list"]:
                 return True
         return False

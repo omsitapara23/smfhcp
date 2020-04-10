@@ -12,3 +12,5 @@ db.sqlite3
 .coverage
 htmlcov
 smfhcp/test/__pycache__
+smfhcp/dao/__pycache__
+smfhcp/esmapper/__pycache__
