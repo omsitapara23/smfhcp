@@ -2,22 +2,15 @@ version: 2.1
 
 orbs:
       codecov: codecov/codecov@1.0.5
-jobs:
-  check-flake8:
-    docker:
-      - image: circleci/python:3.6.4
-    steps:
-      - run:
-          name: Installing flake8
-          command: 'sudo pip install flake8'
-      - checkout
-      - run:
-          name: Checking for flake8 errors
-          command: 'flake8 '
 
-  build-status:
-    docker:
-      - image: circleci/python:3.6.4
+aliases:
+  - &docker
+    - image: circleci/python:3.6.4
+
+
+jobs:
+  setup:
+    docker: *docker
     steps:
       - checkout
       - run:
@@ -29,33 +22,33 @@ jobs:
       - run:
           name: Migrate
           command: 'python manage.py migrate'
+
+  check-flake8:
+    docker: *docker
+    steps:
       - run:
-          name: Test and coverage
-          command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
+          name: Installing flake8
+          command: 'sudo pip install flake8'
+      - checkout
       - run:
-          name: Coverage report
-          command: 'coverage report'
+          name: Checking for flake8 errors
+          command: 'flake8 '
+
+  build-status:
+    docker: *docker
+    steps:
+      - checkout
       - run:
           name: Build
           command: 'python manage.py check'
 
   testing-CodeCov:
-    docker:
-      - image: circleci/python:3.6.4
+    docker: *docker
     steps:
         - checkout
         - run:
             name: Installing CodeCov
             command: 'sudo pip install codecov'
-        - run:
-            name: Installing Dependencies
-            command: 'sudo python setup.py install'
-        - run:
-            name: Make migrations
-            command: 'python manage.py makemigrations'
-        - run:
-            name: Migrate
-            command: 'python manage.py migrate'
         - run:
             name: Test and coverage
             command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
@@ -69,8 +62,13 @@ jobs:
 
 workflows:
   version: 2.1
-  build:
+  checks:
     jobs:
+      - setup
       - check-flake8
-      - build-status
-      - testing-CodeCov
+      - build-status:
+          requires:
+            - setup
+      - testing-CodeCov:
+          requires:
+            - setup
