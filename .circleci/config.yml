@@ -5,24 +5,8 @@ orbs:
 
 aliases:
   - &docker
-    - image: circleci/python:3.6.4
-
-
+    - image : circleci/python:3.6.4
 jobs:
-  setup:
-    docker: *docker
-    steps:
-      - checkout
-      - run:
-          name: Installing Dependencies
-          command: 'sudo python setup.py install'
-      - run:
-          name: Make migrations
-          command: 'python manage.py makemigrations'
-      - run:
-          name: Migrate
-          command: 'python manage.py migrate'
-
   check-flake8:
     docker: *docker
     steps:
@@ -39,6 +23,21 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Installing Dependencies
+          command: 'sudo python setup.py install'
+      - run:
+          name: Make migrations
+          command: 'python manage.py makemigrations'
+      - run:
+          name: Migrate
+          command: 'python manage.py migrate'
+      - run:
+          name: Test and coverage
+          command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
+      - run:
+          name: Coverage report
+          command: 'coverage report'
+      - run:
           name: Build
           command: 'python manage.py check'
 
@@ -49,6 +48,15 @@ jobs:
         - run:
             name: Installing CodeCov
             command: 'sudo pip install codecov'
+        - run:
+            name: Installing Dependencies
+            command: 'sudo python setup.py install'
+        - run:
+            name: Make migrations
+            command: 'python manage.py makemigrations'
+        - run:
+            name: Migrate
+            command: 'python manage.py migrate'
         - run:
             name: Test and coverage
             command: 'coverage run --source="smfhcp.views,smfhcp.utils" manage.py test smfhcp.test'
@@ -62,13 +70,10 @@ jobs:
 
 workflows:
   version: 2.1
-  checks:
+  build:
     jobs:
-      - setup
       - check-flake8
-      - build-status:
+      - build-status
+      - testing-CodeCov :
           requires:
-            - setup
-      - testing-CodeCov:
-          requires:
-            - setup
+            - build-status
