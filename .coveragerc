@@ -3,3 +3,5 @@ branch = True
 
 [report]
 fail_under = 0
+exclude_lines =
+    def save_profile_picture

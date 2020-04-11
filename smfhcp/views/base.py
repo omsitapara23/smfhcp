@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import smfhcp.utils.utils as utils
 import smfhcp.constants as constants
 from smfhcp.dao.elasticsearch_dao import ElasticsearchDao
@@ -41,16 +41,19 @@ def base_view(request):
 
 
 def trending_view(request):
-    res = es_dao.get_all_posts()
-    post_list = res['hits']['hits']
-    for post in post_list:
-        dt = smfhcp_utils.create_time_from_utc_string(post['_source']['date'])
-        post['_source']['date'] = smfhcp_utils.pretty_date(dt)
-        post["_source"]['isFollowing'] = smfhcp_utils.find_if_follows(request, post['_source']['user_name'], es_dao)
-    # Sorting the post list based on view_count
-    post_list.sort(key=lambda k: k['_source']['view_count'], reverse=True)
-    context = {
-        'post_count': len(post_list),
-        'posts': post_list
-    }
-    return render(request, constants.TRENDING_HTML_PATH, context)
+    if 'is_authenticated' in request.session and request.session['is_authenticated']:
+        res = es_dao.get_all_posts()
+        post_list = res['hits']['hits']
+        for post in post_list:
+            dt = smfhcp_utils.create_time_from_utc_string(post['_source']['date'])
+            post['_source']['date'] = smfhcp_utils.pretty_date(dt)
+            post["_source"]['isFollowing'] = smfhcp_utils.find_if_follows(request, post['_source']['user_name'], es_dao)
+        # Sorting the post list based on view_count
+        post_list.sort(key=lambda k: k['_source']['view_count'], reverse=True)
+        context = {
+            'post_count': len(post_list),
+            'posts': post_list
+        }
+        return render(request, constants.TRENDING_HTML_PATH, context)
+    else:
+        return redirect('/')

@@ -8,7 +8,6 @@ from django.conf import settings
 import json
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
-from django.contrib import messages
 from django.template.loader import render_to_string
 import smfhcp.utils.utils as utils
 import smfhcp.constants as constants
@@ -68,7 +67,7 @@ def signup_email(request):
         body = es_mapper.map_general_user(data.get('user_name'), data.get('email'), password=data.get('password'))
         if index_general_user(body) is False:
             response_data = {
-                "message": 'User name or email already exists.'
+                "message": constants.USER_OR_EMAIL_ALREADY_EXISTS_MESSAGE
             }
             return HttpResponse(
                 json.dumps(response_data),
@@ -113,7 +112,7 @@ def login_user(request):
             )
         else:
             response_data = {
-                "message": 'Username/Password does not match.'
+                "message": constants.USERNAME_AND_PASSWORD_DO_NOT_MATCH
             }
             return HttpResponse(
                 json.dumps(response_data),
@@ -126,16 +125,16 @@ def login_user(request):
 def check_email_existence(email_id):
     res = es_dao.search_users_by_email(email_id)
     if res['hits']['total']['value'] > 0:
-        return False, "User already exists."
+        return False, constants.USER_ALREADY_EXISTS
     try:
         _ = es_dao.get_doctor_activation_by_email_id(email_id)
-        return False, "User already invited."
+        return False, constants.USER_ALREADY_INVITED
     except elasticsearch.NotFoundError:
-        return True, "Sent Invite"
+        return True, constants.SENT_INVITE
 
 
 def send_invitation_email(receiver_email, token):
-    subject = "Invitation to join SMFHCP as a Health care Professional"
+    subject = constants.INVITE_EMAIL_SUBJECT
     message = render_to_string(constants.REGISTER_THROUGH_EMAIL_HTML_PATH, {
         'username': str(receiver_email).split('@')[0],
         'otp': token,
@@ -146,7 +145,6 @@ def send_invitation_email(receiver_email, token):
                   recipient_list=[receiver_email], html_message=message, fail_silently=False, message="")
         return True
     except SMTPException:
-        print("Error in sending mail")
         return False
 
 
@@ -154,14 +152,13 @@ def send_invitation_email(receiver_email, token):
 def send_invite(request):
     email_id = request.POST.get('email')
     token = smfhcp_utils.random_with_n_digits(6)
-    print(token)
     valid, message = check_email_existence(email_id)
     if valid is True:
         res = send_invitation_email(email_id, token)
         if res is True:
             es_dao.index_doctor_activation(email_id, token)
             response_data = {
-                "message": 'Invitation sent successfully.',
+                "message": constants.INVITATION_SENT_SUCCESSFULLY,
                 "success": True
             }
             return HttpResponse(
@@ -170,7 +167,7 @@ def send_invite(request):
             )
         else:
             response_data = {
-                "message": 'Could not send email.',
+                "message": constants.COULD_NOT_SEND_EMAIL,
                 "success": False
             }
             return HttpResponse(
@@ -190,15 +187,14 @@ def send_invite(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def doctor_signup(request, otp):
-    print(otp)
+    context = {}
     if "is_authenticated" not in request.session or request.session['is_authenticated'] is False:
-        messages.info(request, otp)
-    return render(request, constants.DOCTOR_CREATE_PROFILE_HTML_PATH)
+        context['info'] = otp
+    return render(request, constants.DOCTOR_CREATE_PROFILE_HTML_PATH, context)
 
 
 def save_profile_picture(request):
     for key, file in request.FILES.items():
-        print('here')
         file_type = str(file.name).split('.')[-1]
         name = request.POST.get('user_name')
         if key == 'profilePicture':
@@ -242,7 +238,7 @@ def create_profile(request):
                     )
                 else:
                     response_data = {
-                        "message": 'OTP, email pair do not match.'
+                        "message": constants.OTP_EMAIL_PAIR_DOES_NOT_MATCH
                     }
                     return HttpResponse(
                         json.dumps(response_data),
@@ -250,7 +246,7 @@ def create_profile(request):
                     )
             except elasticsearch.NotFoundError:
                 response_data = {
-                    "message": 'This email id does not have an invite.'
+                    "message": constants.EMAIL_DOES_NOT_HAVE_INVITE
                 }
                 return HttpResponse(
                     json.dumps(response_data),
@@ -258,7 +254,7 @@ def create_profile(request):
                 )
         else:
             response_data = {
-                "message": 'Username already exists.'
+                "message": constants.USERNAME_ALREADY_EXISTS
             }
             return HttpResponse(
                 json.dumps(response_data),
@@ -275,5 +271,4 @@ def logout(request):
     request.session['email'] = None
     request.session['is_authenticated'] = False
     request.session['is_doctor'] = None
-    request.session.modified = True
     return redirect('/')
