@@ -18,7 +18,7 @@ es_dao = ElasticsearchDao()
 
 
 def send_password_reset_email(res, token):
-    subject = "Password reset request for SMFHCP"
+    subject = constants.PASSWORD_RESET_REQUEST_SUBJECT
     message = render_to_string(constants.RESET_PASSWORD_EMAIL_HTML_PATH, {
         'username': res['user_name'],
         'otp': token,
