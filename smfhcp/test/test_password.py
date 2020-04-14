@@ -231,3 +231,8 @@ class TestPassword(TestCase):
         self.es_dao.delete_forgot_password_token.assert_called_with(TEST_USER_NAME)
         self.dummy_smfhcp_utils.find_user.assert_called_with(TEST_USER_NAME, self.es_dao)
         self.es_dao.update_password_by_user_name.asser_called_with(TEST_USER_NAME, 'new_password', False)
+
+    def test_reset_password_when_request_not_get_or_post(self):
+        request = self.factory.put('/reset_password/test_user/test_otp')
+        with self.assertRaises(PermissionDenied):
+            _ = password.reset_password(request, TEST_USER_NAME, TEST_OTP)

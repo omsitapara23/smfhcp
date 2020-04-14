@@ -30,7 +30,6 @@ def send_password_reset_email(res, token):
 
         return True
     except SMTPException:
-        print("Error in sending mail")
         return False
 
 
@@ -104,3 +103,5 @@ def reset_password(request, user_name, otp):
         request.session['email'] = res['email']
         request.session['is_authenticated'] = True
         return redirect('/')
+    else:
+        raise PermissionDenied()
