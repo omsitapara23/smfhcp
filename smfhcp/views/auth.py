@@ -208,6 +208,7 @@ def save_profile_picture(request):
                 dest.write(file.read())
             dest.close()
             return '{}.{}'.format(name, file_type)
+    return "default.jpg"
 
 
 def index_doctor(request, data, profile_picture):
