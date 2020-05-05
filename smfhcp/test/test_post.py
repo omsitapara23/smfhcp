@@ -37,6 +37,7 @@ class TestPost(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/')
 
+    @patch('smfhcp.views.post.es_dao', es_dao)
     def test_view_post_post_not_present(self):
         self.es_dao.get_post_by_id = MagicMock(side_effect=elasticsearch.NotFoundError())
         request = self.factory.get('/view_post/1234')

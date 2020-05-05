@@ -380,7 +380,9 @@ class TestAuth(TestCase):
 
     @patch('smfhcp.views.auth.send_invitation_email', send_invitation_email_returns_true)
     @patch('smfhcp.views.auth.check_email_existence', check_email_existence_returns_true)
+    @patch('smfhcp.views.auth.es_dao', es_dao)
     def test_send_invite_when_mail_sent(self):
+        self.es_dao.index_doctor_activation = MagicMock()
         post_data = {
             'email': TEST_EMAIL
         }
@@ -392,6 +394,7 @@ class TestAuth(TestCase):
                          True)
         self.send_invitation_email_returns_true.assert_called_with(TEST_EMAIL, ANY)
         self.check_email_existence_returns_true.assert_called_with(TEST_EMAIL)
+        self.es_dao.index_doctor_activation.assert_called_with(TEST_EMAIL, ANY)
 
     def test_doctor_signup_when_user_already_logged_in(self):
         request = self.factory.get('/doctor_signup/123')
