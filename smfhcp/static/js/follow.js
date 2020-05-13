@@ -1,16 +1,31 @@
 $(document).ready(function(){
-    $("#followLink").click(function(event){
-        event.preventDefault();
-        var doctor_user_name = $("#followLink").attr('href')
-        if ($("#followImage").attr('src').endsWith('unfollow.png')) {
-            $("#followImage").attr('src', "../static/images/follow.png")
-            $("#followDiv").attr('title', 'Follow ' + doctor_user_name)
+    $(".followLink").click(function(event){
+        event.preventDefault()
+        $currentLink = $(this)
+        $currentLink.addClass('active')
+        var doctor_user_name = $currentLink.attr('href')
+
+        if ($currentLink.children(".followDiv").children(".followImage").attr('src').endsWith('unfollow.png')) {
+            $currentLink.children(".followDiv").children(".followImage").attr('src', "../static/images/follow.png")
+            $currentLink.children(".followDiv").attr('title', 'Follow ' + doctor_user_name)
             followOrUnfollow("false", doctor_user_name)
         } else {
-            $("#followImage").attr('src', "../static/images/unfollow.png")
-            $("#followDiv").attr('title', 'Unfollow ' + doctor_user_name)
+            $currentLink.children(".followDiv").children(".followImage").attr('src', "../static/images/unfollow.png")
+            $currentLink.children(".followDiv").attr('title', 'Unfollow ' + doctor_user_name)
             followOrUnfollow("true", doctor_user_name)
         }
+
+        $(".followLink").each(function(){
+            if (!$(this).hasClass('active') && $(this).attr('href') == doctor_user_name) {
+                if ($(this).children(".followDiv").children(".followImage").attr('src').endsWith('unfollow.png')) {
+                    $(this).children(".followDiv").children(".followImage").attr('src', "../static/images/follow.png")
+                    $(this).children(".followDiv").attr('title', 'Follow ' + doctor_user_name)
+                } else {
+                    $(this).children(".followDiv").children(".followImage").attr('src', "../static/images/unfollow.png")
+                    $(this).children(".followDiv").attr('title', 'Unfollow ' + doctor_user_name)
+                }
+            }
+        });
     });
 });
 
