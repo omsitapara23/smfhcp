@@ -199,7 +199,7 @@ def save_profile_picture(request):
         name = request.POST.get('user_name')
         if key == 'profilePicture':
             import os
-            file_path = os.path.join(os.path.dirname(__file__), 'static/images/profiles/{}.{}'.format(name, file_type))
+            file_path = os.path.join(os.path.dirname(__file__), '../static/images/profiles/{}.{}'.format(name, file_type))
             dest = open(file_path, 'wb')
             if file.multiple_chunks:
                 for c in file.chunks():

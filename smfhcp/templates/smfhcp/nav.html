@@ -79,27 +79,28 @@
   </a>
 {% endif %}
 
+
+{% include 'smfhcp/invite.html'%}
+
+{% include 'smfhcp/update.html'%}
+
+{% include 'smfhcp/case_study.html'%}
+
+{% include 'smfhcp/general_post.html'%}
+
 {% if request.session.is_doctor %}
 
-  {% include 'smfhcp/invite.html'%}
-
-  {% include 'smfhcp/update.html'%}
-
-  {% include 'smfhcp/case_study.html'%}
-
-  {% include 'smfhcp/general_post.html'%}
-
-  {% include 'smfhcp/chat.html'%}
-
-  <script src="{% static 'js/invite.js' %}"></script>
-  <script src="{% static 'js/updateProfile.js' %}"></script>
-  <script src="{% static 'js/caseStudy.js' %}"></script>
-  <script src="{% static 'js/generalPost.js' %}"></script>
+{% include 'smfhcp/chat.html'%}
 
 {% endif %}
 
-<script src="{% static 'js/follow.js' %}"></script>
+<script src="{% static 'js/invite.js' %}"></script>
+<script src="{% static 'js/updateProfile.js' %}"></script>
+<script src="{% static 'js/caseStudy.js' %}"></script>
+<script src="{% static 'js/generalPost.js' %}"></script>
+
 <script src="{% static 'js/csrf.js' %}"></script>
+<script src="{% static 'js/follow.js' %}"></script>
 <script src="{% static 'js/comment.js' %}"></script>
 
 {% endif %}

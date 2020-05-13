@@ -30,9 +30,9 @@
                         </div>
                         {% if post.user_name != request.session.user_name %}
                             <div class="col-md-2" style="padding-top: 20px;">
-                                <a href="{{ post.user_name }}" id="followLink">
-                                    <div data-toggle="tooltip" data-placement="top" title="{% if post.isFollowing %}Unfollow {% else %}Follow {% endif %}{{ user_name }}" id="followDiv" style="display: inline-block; padding-left: 9px; padding-top: 5px; background-color: #F7F7F7; border-radius: 20px; width: 40px; height: 40px; border: 1px solid #eaeaea">
-                                        <image src="/static/images/{% if post.isFollowing %}unfollow{% else %}follow{% endif %}.png" style="width: 20px;" id="followImage"></image>
+                                <a href="{{ post.user_name }}" class="followLink">
+                                    <div data-toggle="tooltip" data-placement="top" title="{% if post.isFollowing %}Unfollow {% else %}Follow {% endif %}{{ user_name }}" class="followDiv" style="display: inline-block; padding-left: 9px; padding-top: 5px; background-color: #F7F7F7; border-radius: 20px; width: 40px; height: 40px; border: 1px solid #eaeaea">
+                                        <image src="/static/images/{% if post.isFollowing %}unfollow{% else %}follow{% endif %}.png" style="width: 20px;" class="followImage"></image>
                                     </div>
                                 </a>
                             </div>
